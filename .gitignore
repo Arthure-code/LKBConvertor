@@ -3,6 +3,14 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+
+# Clé Syncfusion — NE JAMAIS pousser sur GitHub
+appsettings.json
+
+# Android
+*.keystore
+*.jks
+
 # User-specific files
 *.rsuser
 *.suo
