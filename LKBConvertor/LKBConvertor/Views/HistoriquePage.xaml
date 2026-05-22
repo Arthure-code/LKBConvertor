@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:LKBConvertor.ViewModels"
+             x:Class="LKBConvertor.Views.HistoriquePage"
+             Title="Historique">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <vm:HistoriqueViewModel x:Key="vm"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Effacer tout"
+                     Command="{Binding Source={StaticResource vm},
+                         Path=EffacerToutCommande}"/>
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="*,Auto">
+
+        <!-- Liste vide -->
+        <Label Grid.Row="0"
+               Text="Aucune conversion dans l'historique"
+               FontSize="14"
+               TextColor="{StaticResource GrisFonce}"
+               HorizontalOptions="Center"
+               VerticalOptions="Center"
+               IsVisible="{Binding Source={StaticResource vm},
+                   Path=EstVide}"/>
+
+        <!-- Liste des conversions -->
+        <CollectionView Grid.Row="0"
+                        ItemsSource="{Binding Source={StaticResource vm},
+                            Path=Historique}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <SwipeView>
+                        <SwipeView.RightItems>
+                            <SwipeItems>
+                                <SwipeItem Text="Supprimer"
+                                           BackgroundColor="{StaticResource RougeErreur}"
+                                           Command="{Binding Source={StaticResource vm},
+                                               Path=SupprimerCommande}"
+                                           CommandParameter="{Binding .}"/>
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+                        <Grid ColumnDefinitions="*,Auto,Auto"
+                              Padding="16,10" ColumnSpacing="8">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="{Binding NomFichierSource}"
+                                       FontAttributes="Bold" FontSize="14"/>
+                                <Label Text="{Binding DateConversion}"
+                                       FontSize="11"
+                                       TextColor="{StaticResource GrisFonce}"/>
+                            </VerticalStackLayout>
+                            <Label Grid.Column="1"
+                                   Text="{Binding TailleAffichage}"
+                                   FontSize="11"
+                                   TextColor="{StaticResource GrisFonce}"
+                                   VerticalOptions="Center"/>
+                            <Label Grid.Column="2"
+                                   Text="{Binding EtiquetteType}"
+                                   FontSize="11"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource BleuPrimaire}"
+                                   VerticalOptions="Center"/>
+                        </Grid>
+                    </SwipeView>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Label Grid.Row="1" Text="Publicité AdMob"
+               BackgroundColor="{StaticResource GrisClair}"
+               TextColor="{StaticResource GrisFonce}"
+               FontSize="10"
+               HorizontalTextAlignment="Center"
+               Padding="8"/>
+    </Grid>
+</ContentPage>
