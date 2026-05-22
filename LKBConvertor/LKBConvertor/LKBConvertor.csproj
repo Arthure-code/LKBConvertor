@@ -38,6 +38,5 @@
 	<ItemGroup>
 		<Folder Include="Helpers\" />
 		<Folder Include="Views\" />
-		<Folder Include="ViewModels\" />
 	</ItemGroup>
 </Project>
