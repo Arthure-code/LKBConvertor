@@ -1,8 +1,9 @@
-﻿using Syncfusion.DocIO;
+﻿using LKBConvertor.Models;
+using Syncfusion.DocIO;
 using Syncfusion.DocIO.DLS;
 using Syncfusion.DocIORenderer;
+using Syncfusion.Pdf;
 using Syncfusion.Pdf.Parsing;
-using LKBConvertor.Models;
 
 namespace LKBConvertor.Services
 {
@@ -76,6 +77,73 @@ namespace LKBConvertor.Services
                 compteur++;
             }
             return candidat;
+        }
+
+        public async Task<ConversionResult> ConvertirPdfVersRtf(
+    string cheminFichier,
+    Action<int> rapportProgression = null)
+        {
+            try
+            {
+                return await Task.Run(() =>
+                {
+                    rapportProgression?.Invoke(20);
+                    var cheminSortie = GenererCheminSortie(cheminFichier, ".rtf");
+
+                    using (var pdfDoc = new PdfLoadedDocument(cheminFichier))
+                    {
+                        var sb = new System.Text.StringBuilder();
+                        for (int i = 0; i < pdfDoc.Pages.Count; i++)
+                        {
+                            var page = pdfDoc.Pages[i] as PdfLoadedPage;
+                            sb.AppendLine(page?.ExtractText() ?? string.Empty);
+                            rapportProgression?.Invoke(20 + (int)(
+                                i / (double)pdfDoc.Pages.Count * 60));
+                        }
+
+                        // RF04 : PDF scanné
+                        if (sb.Length < 10)
+                        {
+                            pdfDoc.Close(true);
+                            return new ConversionResult
+                            {
+                                EstSucces = false,
+                                MessageErreur = "PDF scanné détecté. " +
+                                    "Extraction de texte impossible."
+                            };
+                        }
+
+                        var texte = sb.ToString()
+                            .Replace("\\", "\\\\")
+                            .Replace("{", "\\{")
+                            .Replace("}", "\\}");
+
+                        var rtf = "{\\rtf1\\ansi\\deff0 " +
+                                  "{\\fonttbl{\\f0\\fswiss Arial;}}" +
+                                  "\\f0\\fs22 " + texte + "}";
+
+                        File.WriteAllText(cheminSortie, rtf,
+                            System.Text.Encoding.ASCII);
+                        pdfDoc.Close(true);
+                    }
+
+                    rapportProgression?.Invoke(100);
+                    return new ConversionResult
+                    {
+                        EstSucces = true,
+                        CheminSortie = cheminSortie,
+                        TailleOctets = new FileInfo(cheminSortie).Length
+                    };
+                });
+            }
+            catch (Exception ex)
+            {
+                return new ConversionResult
+                {
+                    EstSucces = false,
+                    MessageErreur = $"Erreur PDF→RTF : {ex.Message}"
+                };
+            }
         }
     }
 }
