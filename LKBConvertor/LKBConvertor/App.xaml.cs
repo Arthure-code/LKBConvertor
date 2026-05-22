@@ -12,8 +12,7 @@ namespace LKBConvertor
             InitializeComponent();
 
             var nomBD = "lkbconvertor_db.sqlite";
-            var repertoire = System.Environment.GetFolderPath(
-                System.Environment.SpecialFolder.Personal);
+            var repertoire = FileSystem.AppDataDirectory;
             var cheminAcces = Path.Combine(repertoire, nomBD);
 
             CheminBD = cheminAcces;
