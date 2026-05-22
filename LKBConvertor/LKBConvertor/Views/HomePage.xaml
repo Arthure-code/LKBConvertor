@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:LKBConvertor.ViewModels"
+             x:Class="LKBConvertor.Views.HomePage"
+             Title="LKBConvertor">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <vm:HomeViewModel x:Key="vm"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout Padding="16" Spacing="6">
+
+                <Label Text="Conversion de documents"
+                       FontSize="13"
+                       TextColor="{StaticResource GrisFonce}"
+                       Margin="0,0,0,8"/>
+
+                <!-- Carte Word → PDF -->
+                <Frame Style="{StaticResource carteConversion}"
+                       BackgroundColor="#EFF6FF"
+                       BorderColor="#BFDBFE">
+                    <Grid ColumnDefinitions="48,*,24" ColumnSpacing="10">
+                        <Frame Grid.Column="0" BackgroundColor="#1D4ED8"
+                               CornerRadius="10" Padding="0"
+                               WidthRequest="48" HeightRequest="48">
+                            <Label Text="W" TextColor="White"
+                                   FontSize="18" FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Frame>
+                        <VerticalStackLayout Grid.Column="1"
+                                             VerticalOptions="Center" Spacing="2">
+                            <Label Text="Word → PDF"
+                                   FontAttributes="Bold" FontSize="15"/>
+                            <Label Text=".docx en PDF haute qualité"
+                                   FontSize="11"
+                                   TextColor="{StaticResource GrisFonce}"/>
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="›" FontSize="20"
+                               TextColor="{StaticResource GrisFonce}"
+                               VerticalOptions="Center"/>
+                    </Grid>
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Command="{Binding Source={StaticResource vm},
+                                Path=NavigerWordPdfCommande}"/>
+                    </Frame.GestureRecognizers>
+                </Frame>
+
+                <!-- Carte PDF → RTF -->
+                <Frame Style="{StaticResource carteConversion}"
+                       BackgroundColor="#FEF2F2"
+                       BorderColor="#FECACA">
+                    <Grid ColumnDefinitions="48,*,24" ColumnSpacing="10">
+                        <Frame Grid.Column="0" BackgroundColor="#DC2626"
+                               CornerRadius="10" Padding="0"
+                               WidthRequest="48" HeightRequest="48">
+                            <Label Text="PDF" TextColor="White"
+                                   FontSize="12" FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Frame>
+                        <VerticalStackLayout Grid.Column="1"
+                                             VerticalOptions="Center" Spacing="2">
+                            <Label Text="PDF → RTF"
+                                   FontAttributes="Bold" FontSize="15"/>
+                            <Label Text="Extraire le texte éditable"
+                                   FontSize="11"
+                                   TextColor="{StaticResource GrisFonce}"/>
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="›" FontSize="20"
+                               TextColor="{StaticResource GrisFonce}"
+                               VerticalOptions="Center"/>
+                    </Grid>
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Command="{Binding Source={StaticResource vm},
+                                Path=NavigerPdfRtfCommande}"/>
+                    </Frame.GestureRecognizers>
+                </Frame>
+
+                <!-- Bouton Historique -->
+                <Button Text="Voir l'historique complet"
+                        Style="{StaticResource btnPrincipal}"
+                        Command="{Binding Source={StaticResource vm},
+                            Path=NavigerHistoriqueCommande}"
+                        Margin="0,8,0,0"/>
+
+                <!-- Conversions récentes -->
+                <Label Text="Conversions récentes"
+                       FontSize="13"
+                       TextColor="{StaticResource GrisFonce}"
+                       Margin="0,12,0,4"/>
+
+                <CollectionView
+                    ItemsSource="{Binding Source={StaticResource vm},
+                        Path=ConversionsRecentes}"
+                    EmptyView="Aucune conversion récente">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="*,Auto"
+                                  Padding="0,6" ColumnSpacing="8">
+                                <Label Grid.Column="0"
+                                       Text="{Binding NomFichierSource}"
+                                       FontSize="13" FontAttributes="Bold"/>
+                                <Label Grid.Column="1"
+                                       Text="{Binding EtiquetteType}"
+                                       FontSize="11"
+                                       TextColor="{StaticResource GrisFonce}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Label Grid.Row="1" Text="Publicité AdMob"
+               BackgroundColor="{StaticResource GrisClair}"
+               TextColor="{StaticResource GrisFonce}"
+               FontSize="10"
+               HorizontalTextAlignment="Center"
+               Padding="8"/>
+    </Grid>
+</ContentPage>
