@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:sfPdf="clr-namespace:Syncfusion.Maui.PdfViewer;
+                 assembly=Syncfusion.Maui.PdfViewer"
+             x:Class="LKBConvertor.Views.PdfViewerPage">
+
+    <Grid RowDefinitions="*,Auto">
+
+        <sfPdf:SfPdfViewer
+            x:Name="pdfViewer"
+            Grid.Row="0"
+            EnableTextSearch="True"
+            EnableAnnotations="True"
+            PageLayoutMode="Continuous"/>
+
+        <Label Grid.Row="1" Text="Publicité AdMob"
+               BackgroundColor="{StaticResource GrisClair}"
+               TextColor="{StaticResource GrisFonce}"
+               FontSize="10"
+               HorizontalTextAlignment="Center"
+               Padding="8"/>
+    </Grid>
+</ContentPage>
