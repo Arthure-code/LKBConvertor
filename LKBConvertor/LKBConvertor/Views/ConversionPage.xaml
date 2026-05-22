@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LKBConvertor.Views.ConversionPage">
+
+    <ContentPage.Resources>
+        <ResourceDictionary/>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout Padding="16" Spacing="10">
+
+                <!-- Zone sélection fichier -->
+                <Frame BorderColor="{StaticResource Bordure}"
+                       CornerRadius="12" Padding="20"
+                       BackgroundColor="{StaticResource GrisClair}"
+                       IsVisible="{Binding Source={StaticResource vm},
+                           Path=FichierSelectionne,
+                           Converter={StaticResource InverseBoolConverter}}">
+                    <VerticalStackLayout Spacing="10"
+                                         HorizontalOptions="Center">
+                        <Label Text="Appuyez pour sélectionner un fichier"
+                               FontSize="14"
+                               TextColor="{StaticResource GrisFonce}"
+                               HorizontalOptions="Center"/>
+                        <Button Text="Choisir un fichier"
+                                Style="{StaticResource btnPrincipal}"
+                                Command="{Binding Source={StaticResource vm},
+                                    Path=ChoisirFichierCommande}"/>
+                    </VerticalStackLayout>
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Command="{Binding Source={StaticResource vm},
+                                Path=ChoisirFichierCommande}"/>
+                    </Frame.GestureRecognizers>
+                </Frame>
+
+                <!-- Fichier sélectionné -->
+                <Frame CornerRadius="10" Padding="10"
+                       IsVisible="{Binding Source={StaticResource vm},
+                           Path=FichierSelectionne}">
+                    <Label Text="{Binding Source={StaticResource vm},
+                               Path=NomFichier}"
+                           FontAttributes="Bold" FontSize="14"/>
+                </Frame>
+
+                <!-- Barre de progression -->
+                <ProgressBar
+                    Progress="{Binding Source={StaticResource vm},
+                        Path=Progression}"
+                    IsVisible="{Binding Source={StaticResource vm},
+                        Path=EnCours}"/>
+
+                <!-- Bouton Convertir -->
+                <Button Text="Convertir"
+                        Style="{StaticResource btnPrincipal}"
+                        Command="{Binding Source={StaticResource vm},
+                            Path=ConvertirCommande}"
+                        IsEnabled="{Binding Source={StaticResource vm},
+                            Path=FichierSelectionne}"/>
+
+                <!-- Zone succès -->
+                <Frame Style="{StaticResource zoneSucces}"
+                       IsVisible="{Binding Source={StaticResource vm},
+                           Path=EstSucces}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Conversion réussie!"
+                               TextColor="{StaticResource VertSucces}"
+                               FontAttributes="Bold"/>
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="6">
+                            <Button Grid.Column="0" Text="Ouvrir"
+                                    Style="{StaticResource btnPrincipal}"
+                                    Command="{Binding Source={StaticResource vm},
+                                        Path=OuvrirVisionneuse}"/>
+                            <Button Grid.Column="1" Text="Partager"
+                                    Style="{StaticResource btnPrincipal}"
+                                    Command="{Binding Source={StaticResource vm},
+                                        Path=PartagerCommande}"/>
+                            <Button Grid.Column="2" Text="Nouveau"
+                                    Style="{StaticResource btnPrincipal}"
+                                    Command="{Binding Source={StaticResource vm},
+                                        Path=ReinitialisierCommande}"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Zone erreur -->
+                <Frame Style="{StaticResource zoneErreur}"
+                       IsVisible="{Binding Source={StaticResource vm},
+                           Path=AErreur}">
+                    <Label Text="{Binding Source={StaticResource vm},
+                               Path=MessageErreur}"
+                           TextColor="{StaticResource RougeErreur}"/>
+                </Frame>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Label Grid.Row="1" Text="Publicité AdMob"
+               BackgroundColor="{StaticResource GrisClair}"
+               TextColor="{StaticResource GrisFonce}"
+               FontSize="10"
+               HorizontalTextAlignment="Center"
+               Padding="8"/>
+    </Grid>
+</ContentPage>
