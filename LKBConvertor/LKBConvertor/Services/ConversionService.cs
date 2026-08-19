@@ -12,7 +12,7 @@ using DocFormat = Syncfusion.DocIO.FormatType;
 
 namespace LKBConvertor.Services
 {
-    public class ConversionService
+    public static class ConversionService
     {
         // ---------- Word → PDF ----------
         public static async Task<ConversionResult> ConvertirWordVersPdf(
