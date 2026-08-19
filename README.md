@@ -35,7 +35,7 @@ Huit conversions bidirectionnelles disponibles, entièrement hors ligne :
 | Word (`.docx`, `.doc`) | PDF | Syncfusion DocIORenderer |
 | PDF | Word (`.docx`) | Syncfusion PdfLoadedDocument + DocIO |
 | PDF | RTF | Syncfusion PdfLoadedDocument + DocIO |
-| PDF | Image (`.png`) | Android `PdfRenderer` natif |
+| PDF | Image (`.png`) | Android `PdfRenderer` |
 | Image (`.jpg`, `.png`) | PDF | Syncfusion Pdf.Graphics |
 | Image | Word | Syncfusion DocIO |
 | Excel (`.xlsx`, `.xls`) | PDF | Syncfusion XlsIORenderer |
@@ -67,12 +67,12 @@ Huit conversions bidirectionnelles disponibles, entièrement hors ligne :
 - Syncfusion Pdf / PdfViewer
 - Syncfusion XlsIO / XlsIORenderer
 - Syncfusion Presentation / PresentationRenderer
-- Android `PdfRenderer` natif (pour PDF → Image sans package payant)
+- Android `PdfRenderer` natif (pour PDF vers Image sans package payant)
 
 **Android**
 - `FileProvider` dédié (autorité `${applicationId}.share.fileprovider`)
 - Partage inter-apps avec `ClipData` + `FLAG_GRANT_READ_URI_PERMISSION` (compat Gmail send-later)
-- Permissions minimales — pas de `READ_MEDIA_*` superflue
+- Permissions minimales, pas de `READ_MEDIA_*` superflue
 - Scoped storage Android 10+
 - Cible SDK Android 35, min SDK 21
 
@@ -101,10 +101,10 @@ services.AddTransient<Func<ConversionType, ConversionPage>>(sp =>
 
 Pipeline Azure DevOps ([`azure-pipelines.yml`](azure-pipelines.yml)) :
 
-1. **Build** — restore, MAUI Android workload, SonarCloud (scanner MSBuild), audit `dotnet list --vulnerable`, signature AAB via keystore stocké en Secure Files, publication d'artefact
-2. **DeployInternal** — Google Play piste interne (auto sur `main`)
-3. **PromoteBeta** — promotion internal → beta (approbation manuelle)
-4. **PromoteProd** — promotion beta → production, rollout progressif 10 % (approbation manuelle)
+1. **Build** : restore, MAUI Android workload, SonarCloud (scanner MSBuild), audit `dotnet list --vulnerable`, signature AAB via keystore stocké en Secure Files, publication d'artefact
+2. **DeployInternal** : Google Play piste interne (auto sur `main`)
+3. **PromoteBeta** : promotion internal vers beta (approbation manuelle)
+4. **PromoteProd** : promotion beta vers production, rollout progressif 10 % (approbation manuelle)
 
 ---
 
@@ -116,7 +116,7 @@ Pipeline Azure DevOps ([`azure-pipelines.yml`](azure-pipelines.yml)) :
 
 ## Démo
 
-*Vidéo à venir — enregistrement émulateur Android en cours*
+*Vidéo à venir, enregistrement émulateur Android en cours.*
 
 ---
 
@@ -141,11 +141,3 @@ Prérequis :
 - JDK 17
 - Android SDK API 35 (installé auto via `dotnet build -t:InstallAndroidDependencies`)
 
----
-
-## Auteur
-
-**Arthure Lekoubou Djune** — [github.com/Arthure-code](https://github.com/Arthure-code)
-
-Étudiant en Développement d'applications sécuritaires, Cégep Limoilou (Québec).
-Certifications Microsoft AZ-900, DP-900, SC-900.
