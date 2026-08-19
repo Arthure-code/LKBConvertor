@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Typographies Material 3 -->
+    <Style TargetType="Label" x:Key="LabelHeadline">
+        <Setter Property="FontSize" Value="22"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="TextColor" Value="{StaticResource SurSurface}"/>
+    </Style>
+
+    <Style TargetType="Label" x:Key="LabelTitle">
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="TextColor" Value="{StaticResource SurSurface}"/>
+    </Style>
+
+    <Style TargetType="Label" x:Key="LabelBody">
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="TextColor" Value="{StaticResource SurSurface}"/>
+    </Style>
+
+    <Style TargetType="Label" x:Key="LabelCaption">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="TextColor" Value="{StaticResource SurSurfaceVariant}"/>
+    </Style>
+
+    <Style TargetType="Label" x:Key="LabelSection">
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="TextColor" Value="{StaticResource SurSurfaceVariant}"/>
+        <Setter Property="TextTransform" Value="Uppercase"/>
+        <Setter Property="CharacterSpacing" Value="1"/>
+    </Style>
+
+    <!-- Boutons -->
+    <Style TargetType="Button" x:Key="btnPrincipal">
+        <Setter Property="BackgroundColor" Value="{StaticResource Primaire}"/>
+        <Setter Property="TextColor" Value="{StaticResource SurPrimaire}"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="Padding" Value="16,12"/>
+        <Setter Property="HeightRequest" Value="48"/>
+    </Style>
+
+    <Style TargetType="Button" x:Key="btnSecondaire">
+        <Setter Property="BackgroundColor" Value="{StaticResource PrimaireContainer}"/>
+        <Setter Property="TextColor" Value="{StaticResource Primaire}"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="Padding" Value="16,12"/>
+        <Setter Property="HeightRequest" Value="48"/>
+    </Style>
+
+    <Style TargetType="Button" x:Key="btnTexte">
+        <Setter Property="BackgroundColor" Value="Transparent"/>
+        <Setter Property="TextColor" Value="{StaticResource Primaire}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+        <Setter Property="Padding" Value="8,4"/>
+    </Style>
+
+    <!-- Compat avec l'ancien code : Frame styles -->
+    <Style TargetType="Frame" x:Key="carteConversion">
+        <Setter Property="CornerRadius" Value="14"/>
+        <Setter Property="Padding" Value="14"/>
+        <Setter Property="HasShadow" Value="False"/>
+        <Setter Property="Margin" Value="0,4"/>
+        <Setter Property="BorderColor" Value="{StaticResource Bordure}"/>
+    </Style>
+
+    <Style TargetType="Frame" x:Key="zoneSucces">
+        <Setter Property="BackgroundColor" Value="{StaticResource SuccesContainer}"/>
+        <Setter Property="BorderColor" Value="{StaticResource Succes}"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="Padding" Value="12"/>
+        <Setter Property="HasShadow" Value="False"/>
+    </Style>
+
+    <Style TargetType="Frame" x:Key="zoneErreur">
+        <Setter Property="BackgroundColor" Value="{StaticResource ErreurContainer}"/>
+        <Setter Property="BorderColor" Value="{StaticResource Erreur}"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="Padding" Value="12"/>
+        <Setter Property="HasShadow" Value="False"/>
+    </Style>
+
+    <!-- ProgressBar Material -->
+    <Style TargetType="ProgressBar">
+        <Setter Property="ProgressColor" Value="{StaticResource Primaire}"/>
+        <Setter Property="BackgroundColor" Value="{StaticResource SurfaceContainerHigh}"/>
+        <Setter Property="HeightRequest" Value="6"/>
+    </Style>
+
+    <!-- AppShell / NavigationPage colors -->
+    <Style TargetType="NavigationPage">
+        <Setter Property="BarBackgroundColor" Value="{StaticResource Primaire}"/>
+        <Setter Property="BarTextColor" Value="{StaticResource SurPrimaire}"/>
+    </Style>
+
+    <Style TargetType="ContentPage">
+        <Setter Property="BackgroundColor" Value="{StaticResource SurfaceVariant}"/>
+    </Style>
+
+</ResourceDictionary>

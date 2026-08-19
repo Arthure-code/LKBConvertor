@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Material 3 — tokens principaux -->
+    <Color x:Key="Primaire">#4F46E5</Color>
+    <Color x:Key="PrimaireHover">#4338CA</Color>
+    <Color x:Key="PrimaireContainer">#EEF2FF</Color>
+    <Color x:Key="SurPrimaire">#FFFFFF</Color>
+
+    <Color x:Key="Surface">#FFFFFF</Color>
+    <Color x:Key="SurfaceVariant">#F9FAFB</Color>
+    <Color x:Key="SurfaceContainerHigh">#F3F4F6</Color>
+    <Color x:Key="Bordure">#E5E7EB</Color>
+    <Color x:Key="BordureLegere">#F3F4F6</Color>
+
+    <Color x:Key="SurSurface">#111827</Color>
+    <Color x:Key="SurSurfaceVariant">#6B7280</Color>
+    <Color x:Key="SurSurfaceLeger">#9CA3AF</Color>
+
+    <Color x:Key="Succes">#059669</Color>
+    <Color x:Key="SuccesContainer">#ECFDF5</Color>
+    <Color x:Key="Erreur">#DC2626</Color>
+    <Color x:Key="ErreurContainer">#FEF2F2</Color>
+    <Color x:Key="Avertissement">#D97706</Color>
+    <Color x:Key="AvertissementContainer">#FFFBEB</Color>
+
+    <!-- Accents catégoriels (tuiles) -->
+    <Color x:Key="AccentBleu">#2563EB</Color>
+    <Color x:Key="AccentBleuBg">#EFF6FF</Color>
+    <Color x:Key="AccentRouge">#DC2626</Color>
+    <Color x:Key="AccentRougeBg">#FEF2F2</Color>
+    <Color x:Key="AccentVert">#16A34A</Color>
+    <Color x:Key="AccentVertBg">#F0FDF4</Color>
+    <Color x:Key="AccentOrange">#EA580C</Color>
+    <Color x:Key="AccentOrangeBg">#FFF7ED</Color>
+    <Color x:Key="AccentViolet">#7C3AED</Color>
+    <Color x:Key="AccentVioletBg">#F5F3FF</Color>
+    <Color x:Key="AccentEmeraude">#059669</Color>
+    <Color x:Key="AccentEmeraudeBg">#ECFDF5</Color>
+    <Color x:Key="AccentAmbre">#D97706</Color>
+    <Color x:Key="AccentAmbreBg">#FFFBEB</Color>
+    <Color x:Key="AccentRose">#DB2777</Color>
+    <Color x:Key="AccentRoseBg">#FDF2F8</Color>
+
+    <!-- Alias de compatibilité (ancien code) -->
+    <Color x:Key="BleuPrimaire">#4F46E5</Color>
+    <Color x:Key="BleuClair">#EEF2FF</Color>
+    <Color x:Key="VertSucces">#059669</Color>
+    <Color x:Key="VertSuccesClair">#ECFDF5</Color>
+    <Color x:Key="RougeErreur">#DC2626</Color>
+    <Color x:Key="RougeErreurClair">#FEF2F2</Color>
+    <Color x:Key="GrisFonce">#6B7280</Color>
+    <Color x:Key="GrisClair">#F9FAFB</Color>
+
+</ResourceDictionary>
