@@ -97,7 +97,7 @@ services.AddTransient<Func<ConversionType, ConversionPage>>(sp =>
 
 ## CI/CD
 
-Pipeline Azure DevOps ([`azure-pipelines.yml`](azure-pipelines.yml)) :
+Pipeline Azure DevOps ([`LKBConvertor/azure-pipelines.yml`](LKBConvertor/azure-pipelines.yml)) :
 
 1. **Build** : restore, MAUI Android workload, SonarCloud (scanner MSBuild), audit `dotnet list --vulnerable`, signature AAB via keystore stocké en Secure Files, publication d'artefact
 2. **DeployInternal** : Google Play piste interne (auto sur `main`)
@@ -118,14 +118,14 @@ Pipeline Azure DevOps ([`azure-pipelines.yml`](azure-pipelines.yml)) :
 
 ```bash
 dotnet workload install maui-android
-dotnet restore LKBConvertor/LKBConvertor.csproj
-dotnet build LKBConvertor/LKBConvertor.csproj -f net9.0-android
+dotnet restore LKBConvertor/LKBConvertor/LKBConvertor.csproj
+dotnet build LKBConvertor/LKBConvertor/LKBConvertor.csproj -c Release -f net9.0-android
 ```
 
 Pour un APK Release non signé :
 
 ```bash
-dotnet publish LKBConvertor/LKBConvertor.csproj \
+dotnet publish LKBConvertor/LKBConvertor/LKBConvertor.csproj \
     -c Release -f net9.0-android \
     -p:AndroidPackageFormat=apk
 ```
@@ -133,5 +133,5 @@ dotnet publish LKBConvertor/LKBConvertor.csproj \
 Prérequis :
 - .NET 9 SDK
 - JDK 17
-- Android SDK API 35 (installé auto via `dotnet build -t:InstallAndroidDependencies`)
+- Android SDK API 35 (installé auto via `dotnet build LKBConvertor/LKBConvertor/LKBConvertor.csproj -t:InstallAndroidDependencies -f net9.0-android -p:AcceptAndroidSDKLicenses=True`)
 
