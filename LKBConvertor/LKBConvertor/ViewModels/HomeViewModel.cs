@@ -1,23 +1,27 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using LKBConvertor.Data;
 using LKBConvertor.Models;
+using LKBConvertor.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LKBConvertor.ViewModels
 {
     public class HomeViewModel : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        private LKBDatabase _bd = new LKBDatabase();
+        private readonly LKBDatabase _bd;
+        private readonly INavigationService _navigation;
+        private readonly IServiceProvider _sp;
+        private readonly Func<ConversionType, Views.ConversionPage> _conversionPageFactory;
 
-        public Command NavigerWordPdfCommande { get; set; }
-        public Command NavigerPdfRtfCommande { get; set; }
-        public Command NavigerHistoriqueCommande { get; set; }
+        public Command<ConversionType> NavigerConversionCommande { get; }
+        public Command NavigerHistoriqueCommande { get; }
 
-        private List<ConversionHistory> _conversionsRecentes;
+        private List<ConversionHistory> _conversionsRecentes = new();
         public List<ConversionHistory> ConversionsRecentes
         {
-            get { return _conversionsRecentes; }
+            get => _conversionsRecentes;
             set
             {
                 _conversionsRecentes = value;
@@ -25,40 +29,33 @@ namespace LKBConvertor.ViewModels
             }
         }
 
-        public HomeViewModel()
+        public HomeViewModel(
+            LKBDatabase bd,
+            INavigationService navigation,
+            IServiceProvider sp,
+            Func<ConversionType, Views.ConversionPage> conversionPageFactory)
         {
-            NavigerWordPdfCommande = new Command(NavigerVersWordPdf);
-            NavigerPdfRtfCommande = new Command(NavigerVersPdfRtf);
-            NavigerHistoriqueCommande = new Command(NavigerVersHistorique);
+            _bd = bd;
+            _navigation = navigation;
+            _sp = sp;
+            _conversionPageFactory = conversionPageFactory;
+
+            NavigerConversionCommande = new Command<ConversionType>(
+                async type => await NaviguerAsync(() => _conversionPageFactory(type)));
+            NavigerHistoriqueCommande = new Command(
+                async () => await NaviguerAsync(() => _sp.GetRequiredService<Views.HistoriquePage>()));
         }
 
-        private void NavigerVersWordPdf()
+        private async Task NaviguerAsync(Func<Page> fabrique)
         {
-            App.Current.MainPage.Navigation.PushAsync(
-                new Views.ConversionPage(ConversionType.WordVersPdf));
+            try { await _navigation.PushAsync(fabrique()); }
+            catch { /* navigation double-clic ignorée */ }
         }
 
-        private void NavigerVersPdfRtf()
-        {
-            App.Current.MainPage.Navigation.PushAsync(
-                new Views.ConversionPage(ConversionType.PdfVersRtf));
-        }
-
-        private void NavigerVersHistorique()
-        {
-            App.Current.MainPage.Navigation.PushAsync(
-                new Views.HistoriquePage());
-        }
-
-        public void ChargerConversionsRecentes()
-        {
+        public void ChargerConversionsRecentes() =>
             ConversionsRecentes = _bd.ObtenirRecentes();
-        }
 
-        private void OnPropertyChanged(string nomPropriete)
-        {
-            PropertyChanged?.Invoke(this,
-                new PropertyChangedEventArgs(nomPropriete));
-        }
+        private void OnPropertyChanged(string nomPropriete) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nomPropriete));
     }
 }

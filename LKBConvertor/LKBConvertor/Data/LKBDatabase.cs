@@ -1,4 +1,4 @@
-﻿using SQLite;
+using SQLite;
 using LKBConvertor.Models;
 
 namespace LKBConvertor.Data
@@ -6,62 +6,46 @@ namespace LKBConvertor.Data
     public class LKBDatabase
     {
         private const int MAX_HISTORIQUE = 100;
+        private readonly SQLiteConnection _conn;
 
-        public List<ConversionHistory> ObtenirHistorique()
+        public LKBDatabase()
         {
-            using (var conn = new SQLiteConnection(App.CheminBD))
-            {
-                return conn.Table<ConversionHistory>()
-                           .OrderByDescending(h => h.Id)
-                           .ToList();
-            }
+            var chemin = Path.Combine(
+                FileSystem.AppDataDirectory, "lkbconvertor_db.sqlite");
+            _conn = new SQLiteConnection(chemin);
+            _conn.CreateTable<ConversionHistory>();
         }
 
-        public List<ConversionHistory> ObtenirRecentes()
-        {
-            using (var conn = new SQLiteConnection(App.CheminBD))
-            {
-                return conn.Table<ConversionHistory>()
-                           .OrderByDescending(h => h.Id)
-                           .Take(3)
-                           .ToList();
-            }
-        }
+        public List<ConversionHistory> ObtenirHistorique() =>
+            _conn.Table<ConversionHistory>()
+                 .OrderByDescending(h => h.Id)
+                 .ToList();
+
+        public List<ConversionHistory> ObtenirRecentes() =>
+            _conn.Table<ConversionHistory>()
+                 .OrderByDescending(h => h.Id)
+                 .Take(3)
+                 .ToList();
 
         public void Inserer(ConversionHistory item)
         {
-            using (var conn = new SQLiteConnection(App.CheminBD))
-            {
-                conn.Insert(item);
-            }
+            _conn.Insert(item);
             AppliquerMaxHistorique();
         }
 
-        public void Supprimer(ConversionHistory item)
-        {
-            using (var conn = new SQLiteConnection(App.CheminBD))
-            {
-                conn.Delete(item);
-            }
-        }
+        public void Supprimer(ConversionHistory item) => _conn.Delete(item);
 
-        public void EffacerTout()
-        {
-            using (var conn = new SQLiteConnection(App.CheminBD))
-            {
-                conn.DeleteAll<ConversionHistory>();
-            }
-        }
+        public void EffacerTout() => _conn.DeleteAll<ConversionHistory>();
 
         private void AppliquerMaxHistorique()
         {
-            var liste = ObtenirHistorique();
-            if (liste.Count > MAX_HISTORIQUE)
-            {
-                var aSupprimer = liste.Skip(MAX_HISTORIQUE).ToList();
-                foreach (var item in aSupprimer)
-                    Supprimer(item);
-            }
+            _conn.Execute(
+                @"DELETE FROM ConversionHistory
+                  WHERE Id NOT IN (
+                      SELECT Id FROM ConversionHistory
+                      ORDER BY Id DESC LIMIT ?
+                  )",
+                MAX_HISTORIQUE);
         }
     }
 }

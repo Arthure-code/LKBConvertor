@@ -10,6 +10,36 @@
             x:Name="pdfViewer"
             Grid.Row="0"/>
 
+        <!-- Overlay chargement (conversion Word/RTF → PDF) -->
+        <Grid Grid.Row="0"
+              x:Name="chargementOverlay"
+              BackgroundColor="#CCFFFFFF"
+              IsVisible="False">
+            <VerticalStackLayout HorizontalOptions="Center"
+                                 VerticalOptions="Center"
+                                 Spacing="12">
+                <ActivityIndicator IsRunning="True"
+                                   Color="{StaticResource BleuPrimaire}"
+                                   WidthRequest="48"
+                                   HeightRequest="48"/>
+                <Label Text="Préparation du document…"
+                       FontSize="13"
+                       TextColor="{StaticResource GrisFonce}"
+                       HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+        </Grid>
+
+        <!-- Message erreur -->
+        <Label Grid.Row="0"
+               x:Name="messageErreur"
+               IsVisible="False"
+               Text="Format non pris en charge."
+               FontSize="14"
+               TextColor="{StaticResource RougeErreur}"
+               HorizontalOptions="Center"
+               VerticalOptions="Center"
+               Padding="20"/>
+
         <Label Grid.Row="1" Text="Publicité AdMob"
                BackgroundColor="{StaticResource GrisClair}"
                TextColor="{StaticResource GrisFonce}"
