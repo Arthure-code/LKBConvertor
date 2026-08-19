@@ -40,17 +40,11 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      - name: Cache SonarCloud scanner
-        id: cache-sonar-scanner
-        uses: actions/cache@v4
-        with:
-          path: ~/.dotnet/tools/dotnet-sonarscanner
-          key: ${{ runner.os }}-sonar-scanner
-          restore-keys: ${{ runner.os }}-sonar-scanner
-
       - name: Install SonarCloud scanner
-        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-        run: dotnet tool install --global dotnet-sonarscanner
+        # Toujours réinstaller/mettre à jour — le cache du tool store
+        # (~/.dotnet/tools/.store/) est complexe et se corrompt.
+        # Coût ~5 sec, préférable à un cache miss silencieux.
+        run: dotnet tool update --global dotnet-sonarscanner || dotnet tool install --global dotnet-sonarscanner
 
       - name: Install MAUI Android workload
         run: dotnet workload install maui-android --skip-manifest-update
