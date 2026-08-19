@@ -114,10 +114,6 @@ Pipeline Azure DevOps ([`azure-pipelines.yml`](azure-pipelines.yml)) :
 |---|---|---|---|
 | ![Accueil](docs/screenshots/home.png) | ![Sélection](docs/screenshots/conversion-empty.png) | ![Succès](docs/screenshots/conversion-success.png) | ![Historique](docs/screenshots/historique-menu.png) |
 
-## Démo
-
-*Vidéo à venir, enregistrement émulateur Android en cours.*
-
 ---
 
 ## Build local
