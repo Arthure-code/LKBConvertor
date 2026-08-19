@@ -69,10 +69,10 @@ jobs:
             /d:sonar.coverage.exclusions="**/Views/**,**/Platforms/**"
 
       - name: Restore
-        run: dotnet restore LKBConvertor/LKBConvertor/LKBConvertor.csproj
+        run: dotnet restore LKBConvertor/LKBConvertor/LKBConvertor.csproj -p:RuntimeIdentifiers=android-arm64
 
       - name: Build Release
-        run: dotnet build LKBConvertor/LKBConvertor/LKBConvertor.csproj -c Release -f net9.0-android --no-restore
+        run: dotnet build LKBConvertor/LKBConvertor/LKBConvertor.csproj -c Release -f net9.0-android --no-restore -p:RuntimeIdentifiers=android-arm64
 
       - name: SonarCloud - End analysis
         env:
