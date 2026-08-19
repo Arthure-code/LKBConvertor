@@ -1,5 +1,6 @@
 # LKBConvertor
 
+[![Build Android](https://github.com/Arthure-code/LKBConvertor/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/Arthure-code/LKBConvertor/actions/workflows/build.yml)
 ![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet&logoColor=white)
 ![MAUI](https://img.shields.io/badge/.NET_MAUI-Android-512BD4?logo=xamarin&logoColor=white)
 ![C#](https://img.shields.io/badge/C%23-12-239120?logo=csharp&logoColor=white)
