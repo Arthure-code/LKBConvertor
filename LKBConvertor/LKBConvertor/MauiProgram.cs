@@ -38,7 +38,7 @@ namespace LKBConvertor
 
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddSingleton<LKBDatabase>();
-            services.AddSingleton<ConversionService>();
+            // ConversionService : plus enregistré, méthodes toutes statiques.
 
             services.AddTransient<HomeViewModel>();
             services.AddTransient<HistoriqueViewModel>();

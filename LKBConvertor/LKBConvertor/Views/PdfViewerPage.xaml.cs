@@ -38,7 +38,15 @@ public partial class PdfViewerPage : ContentPage
 
         if (_cheminPdfTemporaire != null && File.Exists(_cheminPdfTemporaire))
         {
-            try { File.Delete(_cheminPdfTemporaire); } catch { }
+            try
+            {
+                File.Delete(_cheminPdfTemporaire);
+            }
+            catch (IOException ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"Cleanup PDF temporaire ignoré : {ex.Message}");
+            }
             _cheminPdfTemporaire = null;
         }
     }
