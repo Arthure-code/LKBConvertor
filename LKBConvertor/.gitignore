@@ -1,0 +1,62 @@
+# Build results
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Ll]og/
+[Ll]ogs/
+build/
+[Bb]uilds/
+
+# .NET
+*.dll
+*.exe
+*.pdb
+*.mdb
+*.dSYM/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Visual Studio
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.rsuser
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/*
+!packages/build/
+.nuget/
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# MAUI / Android
+*.apk
+*.aab
+*.keystore
+!debug.keystore
+local.properties
+generated_configuration/
+Resource.designer.cs
+
+# macOS / iOS
+.DS_Store
+*.xcuserstate
+xcuserdata/
+
+# App secrets
+appsettings.Development.json
+appsettings.*.local.json
+*.pfx
+secrets.json
+
+# OS
+Thumbs.db
+Desktop.ini
