@@ -55,6 +55,18 @@ jobs:
       - name: Install MAUI Android workload
         run: dotnet workload install maui-android --skip-manifest-update
 
+      - name: Create appsettings.json for CI
+        env:
+          SYNCFUSION_KEY: ${{ secrets.SYNCFUSION_KEY }}
+        run: |
+          KEY="${SYNCFUSION_KEY:-PLACEHOLDER_KEY_CI_BUILD_ONLY}"
+          cat > LKBConvertor/LKBConvertor/appsettings.json <<EOF
+          {
+            "SyncfusionKey": "$KEY"
+          }
+          EOF
+          echo 'appsettings.json created for CI build'
+
       - name: SonarCloud - Begin analysis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
