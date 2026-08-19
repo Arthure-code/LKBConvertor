@@ -1,5 +1,15 @@
 # LKBConvertor
 
+![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet&logoColor=white)
+![MAUI](https://img.shields.io/badge/.NET_MAUI-Android-512BD4?logo=xamarin&logoColor=white)
+![C#](https://img.shields.io/badge/C%23-12-239120?logo=csharp&logoColor=white)
+![Syncfusion](https://img.shields.io/badge/Syncfusion-33.2.7-FF6B00)
+![UraniumUI](https://img.shields.io/badge/UraniumUI-Material_3-6750A4)
+![Android](https://img.shields.io/badge/Android-API_21+-3DDC84?logo=android&logoColor=white)
+![License](https://img.shields.io/github/license/Arthure-code/LKBConvertor?color=blue)
+![Last commit](https://img.shields.io/github/last-commit/Arthure-code/LKBConvertor/develop)
+![Repo size](https://img.shields.io/github/repo-size/Arthure-code/LKBConvertor)
+
 Application Android de conversion de documents multi-format, développée en **.NET 9 MAUI**.
 
 Publication Google Play prévue (compte en cours de validation).
