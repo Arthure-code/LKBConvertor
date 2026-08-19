@@ -1,0 +1,353 @@
+# ============================================================
+# Pipeline Azure DevOps - LKBConvertor (.NET MAUI Android)
+# Build + SonarCloud + Signature AAB + Deploiement Google Play
+# Piste : Internal (auto) -> Beta (manuel) -> Production (manuel)
+# ============================================================
+
+trigger:
+  branches:
+    include:
+      - main
+      - chore/devsecops-bootstrap
+
+pr:
+  branches:
+    include:
+      - main
+      - chore/devsecops-bootstrap
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+
+  # ---- Service connections Azure DevOps ----
+  sonarServiceConnection: 'sc-sonarcloud-lkbconvertor'
+  googlePlayServiceConnection: 'sc-googleplay-lkbconvertor'
+
+  # ---- SonarCloud ----
+  sonarOrganization: 'devopstraininglab0715'
+  sonarProjectKey: 'lkbconvertor'
+  sonarProjectName: 'LKBConvertor'
+
+  # ---- Projet MAUI ----
+  csprojPath: 'LKBConvertor/LKBConvertor.csproj'
+  androidPackageName: 'com.companyname.lkbconvertor'
+  buildConfiguration: 'Release'
+  dotnetVersion: '9.0.x'
+  targetFramework: 'net9.0-android'
+
+  # ---- Signature ----
+  # Fichier upload dans : Azure DevOps -> Pipelines -> Library -> Secure files
+  keystoreSecureFileName: 'lkbconvertor.keystore'
+  # Secrets lus depuis la variable group : keystorePassword, keyAlias, keyPassword
+
+stages:
+
+# ============================================================
+# STAGE 1 - BUILD + QUALITE + SECURITE + SIGNATURE
+# ============================================================
+
+- stage: Build
+  displayName: 'Build LKBConvertor Android'
+
+  jobs:
+
+  - job: BuildAndSign
+    displayName: 'Compiler, analyser et signer'
+    timeoutInMinutes: 45
+
+    variables:
+    - group: lkbconvertor-signing   # keystorePassword / keyAlias / keyPassword
+
+    steps:
+
+    # --------------------------------------------------------
+    # Checkout complet (requis par SonarCloud)
+    # --------------------------------------------------------
+
+    - checkout: self
+      fetchDepth: 0
+      displayName: 'Checkout complet pour SonarCloud'
+
+    # --------------------------------------------------------
+    # .NET SDK + JDK 17
+    # --------------------------------------------------------
+
+    - task: UseDotNet@2
+      displayName: 'Installer .NET $(dotnetVersion)'
+      inputs:
+        packageType: 'sdk'
+        version: '$(dotnetVersion)'
+
+    - task: JavaToolInstaller@0
+      displayName: 'Installer JDK 17'
+      inputs:
+        versionSpec: '17'
+        jdkArchitectureOption: 'x64'
+        jdkSourceOption: 'PreInstalled'
+
+    # --------------------------------------------------------
+    # MAUI Android workload + Android SDK
+    # --------------------------------------------------------
+
+    - script: |
+        set -euo pipefail
+        dotnet workload install maui-android --skip-manifest-update
+        dotnet workload list
+      displayName: 'Installer MAUI Android workload'
+
+    - script: |
+        set -euo pipefail
+        dotnet build $(csprojPath) \
+          -t:InstallAndroidDependencies \
+          -f $(targetFramework) \
+          -p:AcceptAndroidSDKLicenses=True \
+          -p:AndroidSdkDirectory=$HOME/android-sdk
+      displayName: 'Installer Android SDK (API 35)'
+
+    # --------------------------------------------------------
+    # SonarQube Cloud - Preparation (scanner MSBuild pour .NET)
+    # --------------------------------------------------------
+
+    - task: SonarCloudPrepare@4
+      displayName: 'Preparer analyse SonarQube Cloud'
+      inputs:
+        SonarCloud: '$(sonarServiceConnection)'
+        organization: '$(sonarOrganization)'
+        scannerMode: 'MSBuild'
+        projectKey: '$(sonarProjectKey)'
+        projectName: '$(sonarProjectName)'
+        extraProperties: |
+          sonar.exclusions=**/obj/**,**/bin/**,**/Platforms/**/Resources/**,**/*.g.cs
+          sonar.coverage.exclusions=**/Views/**,**/Platforms/**
+
+    # --------------------------------------------------------
+    # Restore + audit securite
+    # --------------------------------------------------------
+
+    - script: |
+        set -euo pipefail
+        dotnet restore $(csprojPath)
+      displayName: 'Restore des packages NuGet'
+
+    - script: |
+        set -euo pipefail
+        echo "=== Dependances vulnerables (transitives incluses) ==="
+        dotnet list $(csprojPath) package --vulnerable --include-transitive || true
+        echo "=== Dependances depreciees ==="
+        dotnet list $(csprojPath) package --deprecated || true
+      displayName: 'Audit securite des dependances'
+
+    # --------------------------------------------------------
+    # Telechargement keystore (uniquement hors PR)
+    # --------------------------------------------------------
+
+    - task: DownloadSecureFile@1
+      name: keystore
+      displayName: 'Telecharger keystore de signature'
+      condition: ne(variables['Build.Reason'], 'PullRequest')
+      inputs:
+        secureFile: '$(keystoreSecureFileName)'
+
+    # --------------------------------------------------------
+    # Publish AAB signe (hors PR) ou non signe (PR)
+    # --------------------------------------------------------
+
+    - script: |
+        set -euo pipefail
+        dotnet publish $(csprojPath) \
+          -c $(buildConfiguration) \
+          -f $(targetFramework) \
+          -p:AndroidPackageFormat=aab \
+          -p:AndroidKeyStore=true \
+          -p:AndroidSigningKeyStore="$(keystore.secureFilePath)" \
+          -p:AndroidSigningStorePass="$(keystorePassword)" \
+          -p:AndroidSigningKeyAlias="$(keyAlias)" \
+          -p:AndroidSigningKeyPass="$(keyPassword)" \
+          -o $(Build.ArtifactStagingDirectory)/publish
+      displayName: 'Publier AAB signe'
+      condition: ne(variables['Build.Reason'], 'PullRequest')
+
+    - script: |
+        set -euo pipefail
+        dotnet publish $(csprojPath) \
+          -c $(buildConfiguration) \
+          -f $(targetFramework) \
+          -p:AndroidPackageFormat=aab \
+          -o $(Build.ArtifactStagingDirectory)/publish
+      displayName: 'Publier AAB non signe (PR)'
+      condition: eq(variables['Build.Reason'], 'PullRequest')
+
+    # --------------------------------------------------------
+    # SonarQube Cloud - Analyse + Quality Gate
+    # --------------------------------------------------------
+
+    - task: SonarCloudAnalyze@4
+      displayName: 'Analyser avec SonarQube Cloud'
+      inputs:
+        jdkversion: 'JAVA_HOME_17_X64'
+
+    - task: SonarCloudPublish@4
+      displayName: 'Publier le Quality Gate'
+      condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+      inputs:
+        pollingTimeoutSec: '300'
+
+    # --------------------------------------------------------
+    # Validation de l'AAB
+    # --------------------------------------------------------
+
+    - script: |
+        set -euo pipefail
+        AAB=$(find $(Build.ArtifactStagingDirectory)/publish -name "*-Signed.aab" -o -name "*.aab" | head -1)
+        if [ -z "$AAB" ]; then
+          echo "##vso[task.logissue type=error]Aucun .aab produit"
+          exit 1
+        fi
+        SIZE_MB=$(du -m "$AAB" | cut -f1)
+        echo "Bundle : $AAB (${SIZE_MB} MB)"
+        if [ "$SIZE_MB" -gt 150 ]; then
+          echo "##vso[task.logissue type=warning]AAB > 150 MB (${SIZE_MB} MB) - verifier la taille"
+        fi
+      displayName: 'Valider AAB genere'
+
+    # --------------------------------------------------------
+    # Publication artefact
+    # --------------------------------------------------------
+
+    - task: CopyFiles@2
+      displayName: 'Copier AAB vers staging'
+      inputs:
+        sourceFolder: '$(Build.ArtifactStagingDirectory)/publish'
+        contents: '**/*.aab'
+        targetFolder: '$(Build.ArtifactStagingDirectory)/bundle'
+        flattenFolders: true
+
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publier artefact lkbconvertor-android'
+      inputs:
+        targetPath: '$(Build.ArtifactStagingDirectory)/bundle'
+        artifactName: 'lkbconvertor-android'
+
+
+# ============================================================
+# STAGE 2 - GOOGLE PLAY - PISTE INTERNE (auto sur main)
+# ============================================================
+
+- stage: DeployInternal
+  displayName: 'Google Play - Piste interne'
+
+  dependsOn:
+    - Build
+
+  condition: >
+    and(
+      succeeded(),
+      eq(variables['Build.SourceBranch'], 'refs/heads/main'),
+      ne(variables['Build.Reason'], 'PullRequest')
+    )
+
+  jobs:
+
+  - deployment: DeployInternal
+    displayName: 'Deployer sur piste interne'
+
+    environment: 'lkbconvertor-internal'
+
+    strategy:
+      runOnce:
+        deploy:
+
+          steps:
+
+          - download: current
+            artifact: 'lkbconvertor-android'
+            displayName: 'Telecharger artefact AAB'
+
+          - script: |
+              set -euo pipefail
+              mkdir -p $(Pipeline.Workspace)/release-notes
+              echo "Version $(Build.BuildNumber)" > $(Pipeline.Workspace)/release-notes/fr-FR.txt
+              echo "Build automatique depuis main." >> $(Pipeline.Workspace)/release-notes/fr-FR.txt
+            displayName: 'Generer release notes'
+
+          - task: GooglePlayRelease@4
+            displayName: 'Publier sur piste interne Google Play'
+            inputs:
+              serviceConnection: '$(googlePlayServiceConnection)'
+              applicationId: '$(androidPackageName)'
+              action: 'SingleBundle'
+              bundleFile: '$(Pipeline.Workspace)/lkbconvertor-android/*.aab'
+              track: 'internal'
+              releaseName: '$(Build.BuildNumber)'
+              changeLogFile: '$(Pipeline.Workspace)/release-notes/fr-FR.txt'
+              changeLogLanguage: 'fr-FR'
+              changesNotSentForReview: true
+
+
+# ============================================================
+# STAGE 3 - PROMOTION MANUELLE VERS BETA
+# ============================================================
+
+- stage: PromoteBeta
+  displayName: 'Google Play - Promotion Beta'
+
+  dependsOn:
+    - DeployInternal
+
+  condition: succeeded()
+
+  jobs:
+
+  - deployment: PromoteBeta
+    displayName: 'Promouvoir Internal vers Beta'
+
+    environment: 'lkbconvertor-beta'   # Environnement avec approbation manuelle
+
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+
+          - task: GooglePlayPromote@4
+            displayName: 'Promouvoir piste interne -> beta'
+            inputs:
+              serviceConnection: '$(googlePlayServiceConnection)'
+              packageName: '$(androidPackageName)'
+              sourceTrack: 'internal'
+              destinationTrack: 'beta'
+
+
+# ============================================================
+# STAGE 4 - PROMOTION MANUELLE VERS PRODUCTION (rollout 10%)
+# ============================================================
+
+- stage: PromoteProd
+  displayName: 'Google Play - Promotion Production'
+
+  dependsOn:
+    - PromoteBeta
+
+  condition: succeeded()
+
+  jobs:
+
+  - deployment: PromoteProd
+    displayName: 'Promouvoir Beta vers Production'
+
+    environment: 'lkbconvertor-production'   # Environnement avec approbation manuelle
+
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+
+          - task: GooglePlayPromote@4
+            displayName: 'Promouvoir piste beta -> production'
+            inputs:
+              serviceConnection: '$(googlePlayServiceConnection)'
+              packageName: '$(androidPackageName)'
+              sourceTrack: 'beta'
+              destinationTrack: 'production'
+              userFraction: '0.1'   # Rollout progressif 10 %

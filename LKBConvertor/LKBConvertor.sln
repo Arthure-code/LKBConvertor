@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36908.2 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LKBConvertor", "LKBConvertor\LKBConvertor.csproj", "{FF92402C-1FD1-437A-BCE2-EFFFE8146800}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FF92402C-1FD1-437A-BCE2-EFFFE8146800}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF92402C-1FD1-437A-BCE2-EFFFE8146800}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF92402C-1FD1-437A-BCE2-EFFFE8146800}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{FF92402C-1FD1-437A-BCE2-EFFFE8146800}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF92402C-1FD1-437A-BCE2-EFFFE8146800}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF92402C-1FD1-437A-BCE2-EFFFE8146800}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5C8837B5-E53F-49C5-A383-EDE995DBF12C}
+	EndGlobalSection
+EndGlobal

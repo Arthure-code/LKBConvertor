@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+             xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+             x:Class="LKBConvertor.Views.ConversionPage">
+
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout Padding="20" Spacing="18">
+
+                <!-- Zone sélection fichier -->
+                <Border BackgroundColor="{StaticResource Surface}"
+                        Stroke="{StaticResource Bordure}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="0"
+                        IsVisible="{Binding FichierSelectionne,
+                            Converter={StaticResource InverseBoolConverter}}">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Opacity="0.06" Radius="12" Offset="0,3"/>
+                    </Border.Shadow>
+                    <VerticalStackLayout Padding="28" Spacing="16"
+                                         HorizontalOptions="Center">
+                        <Border BackgroundColor="{StaticResource PrimaireContainer}"
+                                StrokeShape="RoundRectangle 40"
+                                StrokeThickness="0"
+                                WidthRequest="80" HeightRequest="80"
+                                HorizontalOptions="Center">
+                            <Label Text="{x:Static fa:Solid.FileArrowUp}"
+                                   FontFamily="FASolid"
+                                   FontSize="32"
+                                   TextColor="{StaticResource Primaire}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+                        <Label Text="Sélectionnez un fichier"
+                               Style="{StaticResource LabelTitle}"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Appuyez pour parcourir vos fichiers"
+                               Style="{StaticResource LabelCaption}"
+                               HorizontalOptions="Center"/>
+                        <Button Text="Choisir un fichier"
+                                Style="{StaticResource FilledButton}"
+                                Command="{Binding ChoisirFichierCommande}"
+                                Margin="0,8,0,0"
+                                WidthRequest="240"/>
+                    </VerticalStackLayout>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ChoisirFichierCommande}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+
+                <!-- Fichier sélectionné (chip Material) -->
+                <Border BackgroundColor="{StaticResource PrimaireContainer}"
+                        Stroke="Transparent"
+                        StrokeShape="RoundRectangle 16"
+                        IsVisible="{Binding FichierSelectionne}">
+                    <Grid ColumnDefinitions="Auto,*,Auto"
+                          Padding="16" ColumnSpacing="14">
+                        <Border Grid.Column="0"
+                                BackgroundColor="{StaticResource Primaire}"
+                                StrokeShape="RoundRectangle 22"
+                                StrokeThickness="0"
+                                WidthRequest="44" HeightRequest="44"
+                                VerticalOptions="Center">
+                            <Label Text="{x:Static fa:Solid.File}"
+                                   FontFamily="FASolid"
+                                   FontSize="18"
+                                   TextColor="White"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Spacing="3"
+                                             VerticalOptions="Center">
+                            <Label Text="Fichier sélectionné"
+                                   Style="{StaticResource LabelCaption}"
+                                   FontSize="11"/>
+                            <Label Text="{Binding NomFichier}"
+                                   Style="{StaticResource LabelBody}"
+                                   FontAttributes="Bold"
+                                   LineBreakMode="TailTruncation"/>
+                        </VerticalStackLayout>
+                        <Button Grid.Column="2"
+                                Text="{x:Static fa:Solid.Xmark}"
+                                FontFamily="FASolid"
+                                FontSize="16"
+                                WidthRequest="40" HeightRequest="40"
+                                CornerRadius="20"
+                                Padding="0"
+                                BackgroundColor="Transparent"
+                                TextColor="{StaticResource SurSurfaceVariant}"
+                                Command="{Binding ReinitialiserCommande}"/>
+                    </Grid>
+                </Border>
+
+                <!-- Progression -->
+                <VerticalStackLayout Spacing="10"
+                                     IsVisible="{Binding EnCours}">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0"
+                               Text="Conversion en cours…"
+                               Style="{StaticResource LabelCaption}"/>
+                        <ActivityIndicator Grid.Column="1"
+                                           IsRunning="True"
+                                           Color="{StaticResource Primaire}"
+                                           WidthRequest="16" HeightRequest="16"/>
+                    </Grid>
+                    <ProgressBar Progress="{Binding Progression}"
+                                 HeightRequest="8"/>
+                </VerticalStackLayout>
+
+                <!-- Bouton Convertir -->
+                <Button Text="Convertir"
+                        Style="{StaticResource FilledButton}"
+                        Command="{Binding ConvertirCommande}"
+                        IsVisible="{Binding FichierSelectionne}"
+                        HeightRequest="52"/>
+
+                <!-- Zone succès -->
+                <Border BackgroundColor="{StaticResource SuccesContainer}"
+                        Stroke="Transparent"
+                        StrokeShape="RoundRectangle 16"
+                        IsVisible="{Binding EstSucces}">
+                    <VerticalStackLayout Padding="18" Spacing="14">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Border Grid.Column="0"
+                                    BackgroundColor="{StaticResource Succes}"
+                                    StrokeShape="RoundRectangle 20"
+                                    StrokeThickness="0"
+                                    WidthRequest="40" HeightRequest="40">
+                                <Label Text="{x:Static fa:Solid.Check}"
+                                       FontFamily="FASolid"
+                                       FontSize="18"
+                                       TextColor="White"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"/>
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2"
+                                                 VerticalOptions="Center">
+                                <Label Text="Conversion réussie"
+                                       Style="{StaticResource LabelTitle}"
+                                       TextColor="{StaticResource Succes}"/>
+                                <Label Text="Votre fichier est prêt"
+                                       Style="{StaticResource LabelCaption}"/>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Button Grid.Column="0"
+                                    Text="Ouvrir"
+                                    Style="{StaticResource FilledButton}"
+                                    IsVisible="{Binding PeutOuvrirVisionneuse}"
+                                    Command="{Binding OuvrirVisionneuseCommande}"/>
+                            <Button Grid.Column="1"
+                                    Text="Partager"
+                                    Style="{StaticResource TonalButton}"
+                                    Command="{Binding PartagerCommande}"/>
+                        </Grid>
+                        <Button Text="Convertir un autre fichier"
+                                Style="{StaticResource TextButton}"
+                                Command="{Binding ReinitialiserCommande}"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Zone erreur -->
+                <Border BackgroundColor="{StaticResource ErreurContainer}"
+                        Stroke="Transparent"
+                        StrokeShape="RoundRectangle 16"
+                        IsVisible="{Binding AErreur}">
+                    <Grid ColumnDefinitions="Auto,*"
+                          Padding="16" ColumnSpacing="12">
+                        <Border Grid.Column="0"
+                                BackgroundColor="{StaticResource Erreur}"
+                                StrokeShape="RoundRectangle 20"
+                                StrokeThickness="0"
+                                WidthRequest="40" HeightRequest="40"
+                                VerticalOptions="Center">
+                            <Label Text="{x:Static fa:Solid.TriangleExclamation}"
+                                   FontFamily="FASolid"
+                                   FontSize="16"
+                                   TextColor="White"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+                        <Label Grid.Column="1"
+                               Text="{Binding MessageErreur}"
+                               Style="{StaticResource LabelBody}"
+                               TextColor="{StaticResource Erreur}"
+                               VerticalOptions="Center"/>
+                    </Grid>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Label Grid.Row="1" Text="Publicité AdMob"
+               BackgroundColor="{StaticResource SurfaceContainerHigh}"
+               TextColor="{StaticResource SurSurfaceVariant}"
+               FontSize="10"
+               HorizontalTextAlignment="Center"
+               Padding="8"/>
+    </Grid>
+</ContentPage>

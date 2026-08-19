@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:LKBConvertor.Models"
+             x:Class="LKBConvertor.Views.HomePage"
+             Title="LKBConvertor">
+
+    <ContentPage.Resources>
+        <Style x:Key="carteTuile" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="{StaticResource Surface}"/>
+            <Setter Property="Stroke" Value="{StaticResource Bordure}"/>
+            <Setter Property="StrokeThickness" Value="1"/>
+            <Setter Property="StrokeShape" Value="RoundRectangle 14"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Shadow">
+                <Shadow Brush="Black" Opacity="0.05" Radius="6" Offset="0,2"/>
+            </Setter>
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout Padding="16" Spacing="16">
+
+                <Label Text="Que souhaitez-vous convertir ?"
+                       Style="{StaticResource LabelHeadline}"
+                       Margin="4,8,4,0"/>
+
+                <Label Text="Conversions"
+                       Style="{StaticResource LabelSection}"
+                       Margin="4,4,4,0"/>
+
+                <!-- Grille 2 colonnes -->
+                <Grid ColumnDefinitions="*,*"
+                      RowDefinitions="Auto,Auto,Auto,Auto"
+                      ColumnSpacing="12" RowSpacing="12">
+
+                    <!-- Word → PDF -->
+                    <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource carteTuile}">
+                        <VerticalStackLayout Padding="14" Spacing="10">
+                            <Border BackgroundColor="{StaticResource AccentBleuBg}"
+                                    StrokeShape="RoundRectangle 12"
+                                    StrokeThickness="0"
+                                    WidthRequest="44" HeightRequest="44"
+                                    HorizontalOptions="Start">
+                                <Label Text="W" TextColor="{StaticResource AccentBleu}"
+                                       FontSize="20" FontAttributes="Bold"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+                            <Label Text="Word → PDF" Style="{StaticResource LabelTitle}"/>
+                            <Label Text=".docx en PDF" Style="{StaticResource LabelCaption}"/>
+                        </VerticalStackLayout>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding NavigerConversionCommande}">
+                                <TapGestureRecognizer.CommandParameter>
+                                    <x:Static Member="models:ConversionType.WordVersPdf"/>
+                                </TapGestureRecognizer.CommandParameter>
+                            </TapGestureRecognizer>
+                        </Border.GestureRecognizers>
+                    </Border>
+
+                    <!-- PDF → Word -->
+                    <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource carteTuile}">
+                        <VerticalStackLayout Padding="14" Spacing="10">
+                            <Border BackgroundColor="{StaticResource AccentVertBg}"
+                                    StrokeShape="RoundRectangle 12"
+                                    StrokeThickness="0"
+                                    WidthRequest="44" HeightRequest="44"
+                                    HorizontalOptions="Start">
+                                <Label Text="PDF" TextColor="{StaticResource AccentVert}"
+                                       FontSize="12" FontAttributes="Bold"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+                            <Label Text="PDF → Word" Style="{StaticResource LabelTitle}"/>
+                            <Label Text="Texte éditable" Style="{StaticResource LabelCaption}"/>
+                        </VerticalStackLayout>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding NavigerConversionCommande}">
+                                <TapGestureRecognizer.CommandParameter>
+                                    <x:Static Member="models:ConversionType.PdfVersWord"/>
+                                </TapGestureRecognizer.CommandParameter>
+                            </TapGestureRecognizer>
+                        </Border.GestureRecognizers>
+                    </Border>
+
+                    <!-- PDF → RTF -->
+                    <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource carteTuile}">
+                        <VerticalStackLayout Padding="14" Spacing="10">
+                            <Border BackgroundColor="{StaticResource AccentRougeBg}"
+                                    StrokeShape="RoundRectangle 12"
+                                    StrokeThickness="0"
+                                    WidthRequest="44" HeightRequest="44"
+                                    HorizontalOptions="Start">
+                                <Label Text="RTF" TextColor="{StaticResource AccentRouge}"
+                                       FontSize="12" FontAttributes="Bold"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+                            <Label Text="PDF → RTF" Style="{StaticResource LabelTitle}"/>
+                            <Label Text="Texte mis en forme" Style="{StaticResource LabelCaption}"/>
+                        </VerticalStackLayout>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding NavigerConversionCommande}">
+                                <TapGestureRecognizer.CommandParameter>
+                                    <x:Static Member="models:ConversionType.PdfVersRtf"/>
+                                </TapGestureRecognizer.CommandParameter>
+                            </TapGestureRecognizer>
+                        </Border.GestureRecognizers>
+                    </Border>
+
+                    <!-- PDF → Image -->
+                    <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource carteTuile}">
+                        <VerticalStackLayout Padding="14" Spacing="10">
+                            <Border BackgroundColor="{StaticResource AccentRoseBg}"
+                                    StrokeShape="RoundRectangle 12"
+                                    StrokeThickness="0"
+                                    WidthRequest="44" HeightRequest="44"
+                                    HorizontalOptions="Start">
+                                <Label Text="PNG" TextColor="{StaticResource AccentRose}"
+                                       FontSize="11" FontAttributes="Bold"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+                            <Label Text="PDF → Image" Style="{StaticResource LabelTitle}"/>
+                            <Label Text="Première page en PNG" Style="{StaticResource LabelCaption}"/>
+                        </VerticalStackLayout>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding NavigerConversionCommande}">
+                                <TapGestureRecognizer.CommandParameter>
+                                    <x:Static Member="models:ConversionType.PdfVersImage"/>
+                                </TapGestureRecognizer.CommandParameter>
+                            </TapGestureRecognizer>
+                        </Border.GestureRecognizers>
+                    </Border>
+
+                    <!-- Image → PDF -->
+                    <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource carteTuile}">
+                        <VerticalStackLayout Padding="14" Spacing="10">
+                            <Border BackgroundColor="{StaticResource AccentOrangeBg}"
+                                    StrokeShape="RoundRectangle 12"
+                                    StrokeThickness="0"
+                                    WidthRequest="44" HeightRequest="44"
+                                    HorizontalOptions="Start">
+                                <Label Text="IMG" TextColor="{StaticResource AccentOrange}"
+                                       FontSize="11" FontAttributes="Bold"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+                            <Label Text="Image → PDF" Style="{StaticResource LabelTitle}"/>
+                            <Label Text="JPG/PNG en PDF" Style="{StaticResource LabelCaption}"/>
+                        </VerticalStackLayout>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding NavigerConversionCommande}">
+                                <TapGestureRecognizer.CommandParameter>
+                                    <x:Static Member="models:ConversionType.ImageVersPdf"/>
+                                </TapGestureRecognizer.CommandParameter>
+                            </TapGestureRecognizer>
+                        </Border.GestureRecognizers>
+                    </Border>
+
+                    <!-- Image → Word -->
+                    <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource carteTuile}">
+                        <VerticalStackLayout Padding="14" Spacing="10">
+                            <Border BackgroundColor="{StaticResource AccentVioletBg}"
+                                    StrokeShape="RoundRectangle 12"
+                                    StrokeThickness="0"
+                                    WidthRequest="44" HeightRequest="44"
+                                    HorizontalOptions="Start">
+                                <Label Text="IMG" TextColor="{StaticResource AccentViolet}"
+                                       FontSize="11" FontAttributes="Bold"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+                            <Label Text="Image → Word" Style="{StaticResource LabelTitle}"/>
+                            <Label Text="JPG/PNG en .docx" Style="{StaticResource LabelCaption}"/>
+                        </VerticalStackLayout>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding NavigerConversionCommande}">
+                                <TapGestureRecognizer.CommandParameter>
+                                    <x:Static Member="models:ConversionType.ImageVersWord"/>
+                                </TapGestureRecognizer.CommandParameter>
+                            </TapGestureRecognizer>
+                        </Border.GestureRecognizers>
+                    </Border>
+
+                    <!-- Excel → PDF -->
+                    <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource carteTuile}">
+                        <VerticalStackLayout Padding="14" Spacing="10">
+                            <Border BackgroundColor="{StaticResource AccentEmeraudeBg}"
+                                    StrokeShape="RoundRectangle 12"
+                                    StrokeThickness="0"
+                                    WidthRequest="44" HeightRequest="44"
+                                    HorizontalOptions="Start">
+                                <Label Text="X" TextColor="{StaticResource AccentEmeraude}"
+                                       FontSize="20" FontAttributes="Bold"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+                            <Label Text="Excel → PDF" Style="{StaticResource LabelTitle}"/>
+                            <Label Text=".xlsx/.xls en PDF" Style="{StaticResource LabelCaption}"/>
+                        </VerticalStackLayout>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding NavigerConversionCommande}">
+                                <TapGestureRecognizer.CommandParameter>
+                                    <x:Static Member="models:ConversionType.ExcelVersPdf"/>
+                                </TapGestureRecognizer.CommandParameter>
+                            </TapGestureRecognizer>
+                        </Border.GestureRecognizers>
+                    </Border>
+
+                    <!-- PowerPoint → PDF -->
+                    <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource carteTuile}">
+                        <VerticalStackLayout Padding="14" Spacing="10">
+                            <Border BackgroundColor="{StaticResource AccentAmbreBg}"
+                                    StrokeShape="RoundRectangle 12"
+                                    StrokeThickness="0"
+                                    WidthRequest="44" HeightRequest="44"
+                                    HorizontalOptions="Start">
+                                <Label Text="P" TextColor="{StaticResource AccentAmbre}"
+                                       FontSize="20" FontAttributes="Bold"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+                            <Label Text="PowerPoint → PDF" Style="{StaticResource LabelTitle}"/>
+                            <Label Text=".pptx/.ppt en PDF" Style="{StaticResource LabelCaption}"/>
+                        </VerticalStackLayout>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding NavigerConversionCommande}">
+                                <TapGestureRecognizer.CommandParameter>
+                                    <x:Static Member="models:ConversionType.PowerPointVersPdf"/>
+                                </TapGestureRecognizer.CommandParameter>
+                            </TapGestureRecognizer>
+                        </Border.GestureRecognizers>
+                    </Border>
+
+                </Grid>
+
+                <!-- Historique -->
+                <Button Text="Voir l'historique complet"
+                        Style="{StaticResource btnSecondaire}"
+                        Command="{Binding NavigerHistoriqueCommande}"
+                        Margin="0,8,0,0"/>
+
+                <!-- Conversions récentes -->
+                <Label Text="Récent"
+                       Style="{StaticResource LabelSection}"
+                       Margin="4,8,4,0"/>
+
+                <Border Style="{StaticResource carteTuile}">
+                    <CollectionView
+                        ItemsSource="{Binding ConversionsRecentes}"
+                        EmptyView="Aucune conversion récente"
+                        HeightRequest="160">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="*,Auto"
+                                      Padding="14,10" ColumnSpacing="8">
+                                    <Label Grid.Column="0"
+                                           Text="{Binding NomFichierSource}"
+                                           Style="{StaticResource LabelBody}"
+                                           FontAttributes="Bold"
+                                           LineBreakMode="TailTruncation"/>
+                                    <Label Grid.Column="1"
+                                           Text="{Binding EtiquetteType}"
+                                           Style="{StaticResource LabelCaption}"
+                                           TextColor="{StaticResource Primaire}"
+                                           FontAttributes="Bold"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Label Grid.Row="1" Text="Publicité AdMob"
+               BackgroundColor="{StaticResource SurfaceContainerHigh}"
+               TextColor="{StaticResource SurSurfaceVariant}"
+               FontSize="10"
+               HorizontalTextAlignment="Center"
+               Padding="8"/>
+    </Grid>
+</ContentPage>
