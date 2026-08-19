@@ -7,10 +7,25 @@ namespace LKBConvertor.ViewModels
 {
     public class ConversionViewModel : INotifyPropertyChanged
     {
+        // Constantes de mimes / UTIs / extensions par type — static readonly
+        // pour éviter d'allouer les tableaux à chaque appel (S3887).
+        private static readonly string[] UtisWord = { "org.openxmlformats.wordprocessingml.document", "com.microsoft.word.doc" };
+        private static readonly string[] ExtsWord = { ".docx", ".doc" };
+        private static readonly string[] UtisPdf = { "com.adobe.pdf" };
+        private static readonly string[] ExtsPdf = { ".pdf" };
+        private static readonly string[] UtisImage = { "public.image" };
+        private static readonly string[] ExtsImage = { ".jpg", ".jpeg", ".png" };
+        private static readonly string[] UtisExcel = { "org.openxmlformats.spreadsheetml.sheet", "com.microsoft.excel.xls" };
+        private static readonly string[] ExtsExcel = { ".xlsx", ".xls" };
+        private static readonly string[] UtisPowerPoint = { "org.openxmlformats.presentationml.presentation", "com.microsoft.powerpoint.ppt" };
+        private static readonly string[] ExtsPowerPoint = { ".pptx", ".ppt" };
+        private static readonly string[] UtisDefault = { "public.data" };
+        private static readonly string[] ExtsDefault = { ".*" };
+        private static readonly string[] MimesAndroidWildcard = { "*/*" };
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private readonly LKBDatabase _bd;
-        private readonly ConversionService _service;
         private readonly INavigationService _navigation;
         private readonly Func<string, Views.PdfViewerPage> _pdfViewerFactory;
         private readonly ConversionType _typeConversion;
@@ -89,13 +104,11 @@ namespace LKBConvertor.ViewModels
         public ConversionViewModel(
             ConversionType type,
             LKBDatabase bd,
-            ConversionService service,
             INavigationService navigation,
             Func<string, Views.PdfViewerPage> pdfViewerFactory)
         {
             _typeConversion = type;
             _bd = bd;
-            _service = service;
             _navigation = navigation;
             _pdfViewerFactory = pdfViewerFactory;
 
@@ -129,33 +142,20 @@ namespace LKBConvertor.ViewModels
         {
             var (utis, winExts, extensionsAttendues) = _typeConversion switch
             {
-                ConversionType.WordVersPdf => (
-                    new[] { "org.openxmlformats.wordprocessingml.document", "com.microsoft.word.doc" },
-                    new[] { ".docx", ".doc" },
-                    new[] { ".docx", ".doc" }),
+                ConversionType.WordVersPdf => (UtisWord, ExtsWord, ExtsWord),
 
                 ConversionType.PdfVersRtf or ConversionType.PdfVersWord
-                    or ConversionType.PdfVersImage => (
-                    new[] { "com.adobe.pdf" },
-                    new[] { ".pdf" },
-                    new[] { ".pdf" }),
+                    or ConversionType.PdfVersImage => (UtisPdf, ExtsPdf, ExtsPdf),
 
-                ConversionType.ImageVersPdf or ConversionType.ImageVersWord => (
-                    new[] { "public.image" },
-                    new[] { ".jpg", ".jpeg", ".png" },
-                    new[] { ".jpg", ".jpeg", ".png" }),
+                ConversionType.ImageVersPdf or ConversionType.ImageVersWord =>
+                    (UtisImage, ExtsImage, ExtsImage),
 
-                ConversionType.ExcelVersPdf => (
-                    new[] { "org.openxmlformats.spreadsheetml.sheet", "com.microsoft.excel.xls" },
-                    new[] { ".xlsx", ".xls" },
-                    new[] { ".xlsx", ".xls" }),
+                ConversionType.ExcelVersPdf => (UtisExcel, ExtsExcel, ExtsExcel),
 
-                ConversionType.PowerPointVersPdf => (
-                    new[] { "org.openxmlformats.presentationml.presentation", "com.microsoft.powerpoint.ppt" },
-                    new[] { ".pptx", ".ppt" },
-                    new[] { ".pptx", ".ppt" }),
+                ConversionType.PowerPointVersPdf =>
+                    (UtisPowerPoint, ExtsPowerPoint, ExtsPowerPoint),
 
-                _ => (new[] { "public.data" }, new[] { ".*" }, Array.Empty<string>())
+                _ => (UtisDefault, ExtsDefault, Array.Empty<string>())
             };
 
             // Android : "*/*" pour éviter le grisage (beaucoup de fichiers arrivent
@@ -163,7 +163,7 @@ namespace LKBConvertor.ViewModels
             var types = new FilePickerFileType(
                 new Dictionary<DevicePlatform, IEnumerable<string>>
                 {
-                    { DevicePlatform.Android, new[] { "*/*" } },
+                    { DevicePlatform.Android, MimesAndroidWildcard },
                     { DevicePlatform.iOS,     utis },
                     { DevicePlatform.WinUI,   winExts }
                 });
@@ -232,14 +232,14 @@ namespace LKBConvertor.ViewModels
 
             ConversionResult resultat = _typeConversion switch
             {
-                ConversionType.WordVersPdf       => await _service.ConvertirWordVersPdf(CheminFichier, progression),
-                ConversionType.PdfVersRtf        => await _service.ConvertirPdfVersRtf(CheminFichier, progression),
-                ConversionType.PdfVersWord       => await _service.ConvertirPdfVersWord(CheminFichier, progression),
-                ConversionType.ImageVersPdf      => await _service.ConvertirImageVersPdf(CheminFichier, progression),
-                ConversionType.ImageVersWord     => await _service.ConvertirImageVersWord(CheminFichier, progression),
-                ConversionType.ExcelVersPdf      => await _service.ConvertirExcelVersPdf(CheminFichier, progression),
-                ConversionType.PowerPointVersPdf => await _service.ConvertirPowerPointVersPdf(CheminFichier, progression),
-                ConversionType.PdfVersImage      => await _service.ConvertirPdfVersImage(CheminFichier, progression),
+                ConversionType.WordVersPdf       => await ConversionService.ConvertirWordVersPdf(CheminFichier, progression),
+                ConversionType.PdfVersRtf        => await ConversionService.ConvertirPdfVersRtf(CheminFichier, progression),
+                ConversionType.PdfVersWord       => await ConversionService.ConvertirPdfVersWord(CheminFichier, progression),
+                ConversionType.ImageVersPdf      => await ConversionService.ConvertirImageVersPdf(CheminFichier, progression),
+                ConversionType.ImageVersWord     => await ConversionService.ConvertirImageVersWord(CheminFichier, progression),
+                ConversionType.ExcelVersPdf      => await ConversionService.ConvertirExcelVersPdf(CheminFichier, progression),
+                ConversionType.PowerPointVersPdf => await ConversionService.ConvertirPowerPointVersPdf(CheminFichier, progression),
+                ConversionType.PdfVersImage      => await ConversionService.ConvertirPdfVersImage(CheminFichier, progression),
                 _ => new ConversionResult { EstSucces = false, MessageErreur = "Type de conversion non pris en charge." }
             };
 

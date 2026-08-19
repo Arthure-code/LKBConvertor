@@ -87,14 +87,18 @@ namespace LKBConvertor.ViewModels
             ChargerHistorique();
         }
 
-        private async Task PartagerAsync(ConversionHistory item)
+        private static async Task PartagerAsync(ConversionHistory item)
         {
             if (item == null) return;
             try
             {
                 await ShareHelper.PartagerFichierAsync(item.CheminSortie, item.NomFichierSortie);
             }
-            catch { /* partage annulé */ }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"Partage annulé ou échoué : {ex.Message}");
+            }
         }
 
         private async Task OuvrirAsync(ConversionHistory item)
@@ -104,7 +108,11 @@ namespace LKBConvertor.ViewModels
             {
                 await _navigation.PushAsync(_pdfViewerFactory(item.CheminSortie));
             }
-            catch { /* navigation échouée */ }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"Navigation vers visionneuse échouée : {ex.Message}");
+            }
         }
 
         private void OnPropertyChanged(string nomPropriete) =>

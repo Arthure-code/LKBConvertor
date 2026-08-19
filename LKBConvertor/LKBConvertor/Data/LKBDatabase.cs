@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using SQLite;
 using LKBConvertor.Models;
 
 namespace LKBConvertor.Data
 {
+    [SuppressMessage("Naming", "S101",
+        Justification = "LKB is the project name acronym (Lekoubou).")]
     public class LKBDatabase
     {
         private const int MAX_HISTORIQUE = 100;

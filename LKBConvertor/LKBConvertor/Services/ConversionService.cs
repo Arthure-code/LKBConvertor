@@ -15,7 +15,7 @@ namespace LKBConvertor.Services
     public class ConversionService
     {
         // ---------- Word → PDF ----------
-        public async Task<ConversionResult> ConvertirWordVersPdf(
+        public static async Task<ConversionResult> ConvertirWordVersPdf(
             string cheminFichier, Action<int>? rapportProgression = null)
         {
             try
@@ -45,11 +45,11 @@ namespace LKBConvertor.Services
         }
 
         // ---------- PDF → RTF / Word ----------
-        public Task<ConversionResult> ConvertirPdfVersRtf(
+        public static Task<ConversionResult> ConvertirPdfVersRtf(
             string cheminFichier, Action<int>? rapportProgression = null) =>
             PdfVersDocIO(cheminFichier, ".rtf", DocFormat.Rtf, "PDF→RTF", rapportProgression);
 
-        public Task<ConversionResult> ConvertirPdfVersWord(
+        public static Task<ConversionResult> ConvertirPdfVersWord(
             string cheminFichier, Action<int>? rapportProgression = null) =>
             PdfVersDocIO(cheminFichier, ".docx", DocFormat.Docx, "PDF→Word", rapportProgression);
 
@@ -101,7 +101,7 @@ namespace LKBConvertor.Services
         }
 
         // ---------- Image → PDF ----------
-        public async Task<ConversionResult> ConvertirImageVersPdf(
+        public static async Task<ConversionResult> ConvertirImageVersPdf(
             string cheminFichier, Action<int>? rapportProgression = null)
         {
             try
@@ -142,7 +142,7 @@ namespace LKBConvertor.Services
         }
 
         // ---------- Image → Word ----------
-        public async Task<ConversionResult> ConvertirImageVersWord(
+        public static async Task<ConversionResult> ConvertirImageVersWord(
             string cheminFichier, Action<int>? rapportProgression = null)
         {
             try
@@ -172,7 +172,7 @@ namespace LKBConvertor.Services
         }
 
         // ---------- Excel → PDF ----------
-        public async Task<ConversionResult> ConvertirExcelVersPdf(
+        public static async Task<ConversionResult> ConvertirExcelVersPdf(
             string cheminFichier, Action<int>? rapportProgression = null)
         {
             try
@@ -205,7 +205,7 @@ namespace LKBConvertor.Services
         }
 
         // ---------- PowerPoint → PDF ----------
-        public async Task<ConversionResult> ConvertirPowerPointVersPdf(
+        public static async Task<ConversionResult> ConvertirPowerPointVersPdf(
             string cheminFichier, Action<int>? rapportProgression = null)
         {
             try
@@ -233,7 +233,7 @@ namespace LKBConvertor.Services
         }
 
         // ---------- PDF → Image (Android natif) ----------
-        public async Task<ConversionResult> ConvertirPdfVersImage(
+        public static async Task<ConversionResult> ConvertirPdfVersImage(
             string cheminFichier, Action<int>? rapportProgression = null)
         {
 #if ANDROID
@@ -247,6 +247,8 @@ namespace LKBConvertor.Services
                     var javaFile = new Java.IO.File(cheminFichier);
                     using var fd = Android.OS.ParcelFileDescriptor.Open(
                         javaFile, Android.OS.ParcelFileMode.ReadOnly);
+                    if (fd == null)
+                        return Echec("Impossible d'ouvrir le fichier PDF.");
                     using var renderer = new Android.Graphics.Pdf.PdfRenderer(fd);
                     if (renderer.PageCount == 0)
                         return Echec("PDF vide.");
