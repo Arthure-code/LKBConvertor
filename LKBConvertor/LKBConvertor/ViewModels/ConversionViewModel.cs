@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using LKBConvertor.Data;
 using LKBConvertor.Models;
 using LKBConvertor.Services;
@@ -7,63 +7,71 @@ namespace LKBConvertor.ViewModels
 {
     public class ConversionViewModel : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        private LKBDatabase _bd = new LKBDatabase();
-        private ConversionService _service = new ConversionService();
-        private ConversionType _typeConversion;
+        private readonly LKBDatabase _bd;
+        private readonly ConversionService _service;
+        private readonly INavigationService _navigation;
+        private readonly Func<string, Views.PdfViewerPage> _pdfViewerFactory;
+        private readonly ConversionType _typeConversion;
 
-        public Command ChoisirFichierCommande { get; set; }
-        public Command ConvertirCommande { get; set; }
-        public Command PartagerCommande { get; set; }
-        public Command ReinitialisierCommande { get; set; }
-        public Command OuvrirVisionneuse { get; set; }
+        public Command ChoisirFichierCommande { get; }
+        public Command ConvertirCommande { get; }
+        public Command PartagerCommande { get; }
+        public Command ReinitialiserCommande { get; }
+        public Command OuvrirVisionneuseCommande { get; }
 
         private string _cheminFichier = string.Empty;
         public string CheminFichier
         {
-            get { return _cheminFichier; }
+            get => _cheminFichier;
             set
             {
                 _cheminFichier = value;
                 OnPropertyChanged(nameof(CheminFichier));
                 OnPropertyChanged(nameof(FichierSelectionne));
                 OnPropertyChanged(nameof(NomFichier));
+                ConvertirCommande.ChangeCanExecute();
             }
         }
 
-        private int _progression = 0;
-        public int Progression
+        private double _progression;
+        public double Progression
         {
-            get { return _progression; }
+            get => _progression;
             set { _progression = value; OnPropertyChanged(nameof(Progression)); }
         }
 
-        private bool _enCours = false;
+        private bool _enCours;
         public bool EnCours
         {
-            get { return _enCours; }
-            set { _enCours = value; OnPropertyChanged(nameof(EnCours)); }
+            get => _enCours;
+            set
+            {
+                _enCours = value;
+                OnPropertyChanged(nameof(EnCours));
+                ConvertirCommande.ChangeCanExecute();
+            }
         }
 
-        private bool _estSucces = false;
+        private bool _estSucces;
         public bool EstSucces
         {
-            get { return _estSucces; }
+            get => _estSucces;
             set { _estSucces = value; OnPropertyChanged(nameof(EstSucces)); }
         }
 
         private string _cheminSortie = string.Empty;
         public string CheminSortie
         {
-            get { return _cheminSortie; }
+            get => _cheminSortie;
             set { _cheminSortie = value; OnPropertyChanged(nameof(CheminSortie)); }
         }
 
         private string _messageErreur = string.Empty;
         public string MessageErreur
         {
-            get { return _messageErreur; }
+            get => _messageErreur;
             set
             {
                 _messageErreur = value;
@@ -76,48 +84,139 @@ namespace LKBConvertor.ViewModels
         public string NomFichier => string.IsNullOrEmpty(_cheminFichier)
             ? string.Empty : Path.GetFileName(_cheminFichier);
         public bool AErreur => !string.IsNullOrEmpty(_messageErreur);
+        public bool PeutOuvrirVisionneuse => EstSucces;
 
-        public ConversionViewModel(ConversionType type)
+        public ConversionViewModel(
+            ConversionType type,
+            LKBDatabase bd,
+            ConversionService service,
+            INavigationService navigation,
+            Func<string, Views.PdfViewerPage> pdfViewerFactory)
         {
             _typeConversion = type;
-            ChoisirFichierCommande = new Command(ChoisirFichier);
-            ConvertirCommande = new Command(Convertir, PeutConvertir);
-            PartagerCommande = new Command(Partager);
-            ReinitialisierCommande = new Command(Reinitialiser);
-            OuvrirVisionneuse = new Command(OuvrirViewer);
+            _bd = bd;
+            _service = service;
+            _navigation = navigation;
+            _pdfViewerFactory = pdfViewerFactory;
+
+            ChoisirFichierCommande = new Command(
+                async () => await ExecuterAvecGarde(ChoisirFichierAsync));
+            ConvertirCommande = new Command(
+                async () => await ExecuterAvecGarde(ConvertirAsync), PeutConvertir);
+            PartagerCommande = new Command(
+                async () => await ExecuterAvecGarde(PartagerAsync));
+            ReinitialiserCommande = new Command(Reinitialiser);
+            OuvrirVisionneuseCommande = new Command(
+                async () => await ExecuterAvecGarde(OuvrirViewerAsync));
         }
 
         private bool PeutConvertir() => FichierSelectionne && !EnCours;
 
-        private async void ChoisirFichier()
+        private async Task ExecuterAvecGarde(Func<Task> action)
         {
-            var extensions = _typeConversion == ConversionType.WordVersPdf
-                ? new[] { ".docx", ".doc" }
-                : new[] { ".pdf" };
-
-            var types = new FilePickerFileType(
-                new Dictionary<DevicePlatform, IEnumerable<string>>
-                {
-                    { DevicePlatform.Android, extensions },
-                    { DevicePlatform.iOS,     extensions }
-                });
-
-            var resultat = await FilePicker.Default.PickAsync(
-                new PickOptions { FileTypes = types });
-
-            if (resultat != null)
+            try
             {
-                CheminFichier = resultat.FullPath;
-                MessageErreur = string.Empty;
-                EstSucces = false;
+                await action();
+            }
+            catch (Exception ex)
+            {
+                EnCours = false;
+                MessageErreur = ex.Message;
             }
         }
 
-        private async void Convertir()
+        private async Task ChoisirFichierAsync()
         {
-            if (new FileInfo(CheminFichier).Length > 52_428_800)
+            var (utis, winExts, extensionsAttendues) = _typeConversion switch
             {
-                bool continuer = await App.Current.MainPage.DisplayAlert(
+                ConversionType.WordVersPdf => (
+                    new[] { "org.openxmlformats.wordprocessingml.document", "com.microsoft.word.doc" },
+                    new[] { ".docx", ".doc" },
+                    new[] { ".docx", ".doc" }),
+
+                ConversionType.PdfVersRtf or ConversionType.PdfVersWord
+                    or ConversionType.PdfVersImage => (
+                    new[] { "com.adobe.pdf" },
+                    new[] { ".pdf" },
+                    new[] { ".pdf" }),
+
+                ConversionType.ImageVersPdf or ConversionType.ImageVersWord => (
+                    new[] { "public.image" },
+                    new[] { ".jpg", ".jpeg", ".png" },
+                    new[] { ".jpg", ".jpeg", ".png" }),
+
+                ConversionType.ExcelVersPdf => (
+                    new[] { "org.openxmlformats.spreadsheetml.sheet", "com.microsoft.excel.xls" },
+                    new[] { ".xlsx", ".xls" },
+                    new[] { ".xlsx", ".xls" }),
+
+                ConversionType.PowerPointVersPdf => (
+                    new[] { "org.openxmlformats.presentationml.presentation", "com.microsoft.powerpoint.ppt" },
+                    new[] { ".pptx", ".ppt" },
+                    new[] { ".pptx", ".ppt" }),
+
+                _ => (new[] { "public.data" }, new[] { ".*" }, Array.Empty<string>())
+            };
+
+            // Android : "*/*" pour éviter le grisage (beaucoup de fichiers arrivent
+            // en application/octet-stream depuis Drive/Downloads). On valide après.
+            var types = new FilePickerFileType(
+                new Dictionary<DevicePlatform, IEnumerable<string>>
+                {
+                    { DevicePlatform.Android, new[] { "*/*" } },
+                    { DevicePlatform.iOS,     utis },
+                    { DevicePlatform.WinUI,   winExts }
+                });
+
+            var titrePicker = _typeConversion switch
+            {
+                ConversionType.WordVersPdf => "Choisir un document Word",
+                ConversionType.PdfVersRtf or ConversionType.PdfVersWord
+                    or ConversionType.PdfVersImage => "Choisir un document PDF",
+                ConversionType.ImageVersPdf or ConversionType.ImageVersWord => "Choisir une image",
+                ConversionType.ExcelVersPdf => "Choisir un classeur Excel",
+                ConversionType.PowerPointVersPdf => "Choisir une présentation PowerPoint",
+                _ => "Choisir un fichier"
+            };
+
+            var resultat = await FilePicker.Default.PickAsync(
+                new PickOptions { FileTypes = types, PickerTitle = titrePicker });
+
+            if (resultat == null) return;
+
+            // Validation de l'extension
+            var ext = Path.GetExtension(resultat.FileName ?? resultat.FullPath)
+                          .ToLowerInvariant();
+            if (extensionsAttendues.Length > 0 &&
+                Array.IndexOf(extensionsAttendues, ext) < 0)
+            {
+                MessageErreur = $"Type de fichier non pris en charge. " +
+                    $"Attendu : {string.Join(", ", extensionsAttendues)}";
+                return;
+            }
+
+            CheminFichier = resultat.FullPath;
+            MessageErreur = string.Empty;
+            EstSucces = false;
+            OnPropertyChanged(nameof(PeutOuvrirVisionneuse));
+        }
+
+        private async Task ConvertirAsync()
+        {
+            long taille;
+            try
+            {
+                taille = new FileInfo(CheminFichier).Length;
+            }
+            catch (Exception ex)
+            {
+                MessageErreur = $"Fichier introuvable : {ex.Message}";
+                return;
+            }
+
+            if (taille > 52_428_800)
+            {
+                bool continuer = await _navigation.AfficherAlerte(
                     "Fichier volumineux",
                     "Ce fichier dépasse 50 MB. La conversion peut être lente.",
                     "Continuer", "Annuler");
@@ -128,25 +227,29 @@ namespace LKBConvertor.ViewModels
             Progression = 0;
             MessageErreur = string.Empty;
 
-            ConversionResult resultat;
+            Action<int> progression = v =>
+                MainThread.BeginInvokeOnMainThread(() => Progression = v / 100.0);
 
-            if (_typeConversion == ConversionType.WordVersPdf)
+            ConversionResult resultat = _typeConversion switch
             {
-                resultat = await _service.ConvertirWordVersPdf(
-                    CheminFichier, v => Progression = v);
-            }
-            else
-            {
-                resultat = await _service.ConvertirPdfVersRtf(
-                    CheminFichier, v => Progression = v);
-            }
+                ConversionType.WordVersPdf       => await _service.ConvertirWordVersPdf(CheminFichier, progression),
+                ConversionType.PdfVersRtf        => await _service.ConvertirPdfVersRtf(CheminFichier, progression),
+                ConversionType.PdfVersWord       => await _service.ConvertirPdfVersWord(CheminFichier, progression),
+                ConversionType.ImageVersPdf      => await _service.ConvertirImageVersPdf(CheminFichier, progression),
+                ConversionType.ImageVersWord     => await _service.ConvertirImageVersWord(CheminFichier, progression),
+                ConversionType.ExcelVersPdf      => await _service.ConvertirExcelVersPdf(CheminFichier, progression),
+                ConversionType.PowerPointVersPdf => await _service.ConvertirPowerPointVersPdf(CheminFichier, progression),
+                ConversionType.PdfVersImage      => await _service.ConvertirPdfVersImage(CheminFichier, progression),
+                _ => new ConversionResult { EstSucces = false, MessageErreur = "Type de conversion non pris en charge." }
+            };
 
             EnCours = false;
 
             if (resultat.EstSucces)
             {
-                CheminSortie = resultat.CheminSortie;
+                CheminSortie = resultat.CheminSortie ?? string.Empty;
                 EstSucces = true;
+                OnPropertyChanged(nameof(PeutOuvrirVisionneuse));
 
                 _bd.Inserer(new ConversionHistory
                 {
@@ -160,24 +263,19 @@ namespace LKBConvertor.ViewModels
             }
             else
             {
-                MessageErreur = resultat.MessageErreur;
+                MessageErreur = resultat.MessageErreur ?? "Erreur inconnue.";
             }
         }
 
-        private async void Partager()
+        private async Task PartagerAsync()
         {
-            if (string.IsNullOrEmpty(CheminSortie)) return;
-            await Share.Default.RequestAsync(new ShareFileRequest
-            {
-                Title = Path.GetFileName(CheminSortie),
-                File = new ShareFile(CheminSortie)
-            });
+            await ShareHelper.PartagerFichierAsync(CheminSortie);
         }
 
-        private void OuvrirViewer()
+        private async Task OuvrirViewerAsync()
         {
-            App.Current.MainPage.Navigation.PushAsync(
-                new Views.PdfViewerPage(CheminSortie));
+            if (string.IsNullOrEmpty(CheminSortie)) return;
+            await _navigation.PushAsync(_pdfViewerFactory(CheminSortie));
         }
 
         private void Reinitialiser()
@@ -187,12 +285,10 @@ namespace LKBConvertor.ViewModels
             EstSucces = false;
             MessageErreur = string.Empty;
             Progression = 0;
+            OnPropertyChanged(nameof(PeutOuvrirVisionneuse));
         }
 
-        private void OnPropertyChanged(string nomPropriete)
-        {
-            PropertyChanged?.Invoke(this,
-                new PropertyChangedEventArgs(nomPropriete));
-        }
+        private void OnPropertyChanged(string nomPropriete) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nomPropriete));
     }
 }

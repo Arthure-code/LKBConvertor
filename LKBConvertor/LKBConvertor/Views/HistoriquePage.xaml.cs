@@ -4,15 +4,15 @@ namespace LKBConvertor.Views;
 
 public partial class HistoriquePage : ContentPage
 {
-    public HistoriquePage()
+    public HistoriquePage(HistoriqueViewModel vm)
     {
         InitializeComponent();
+        BindingContext = vm;
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        var vm = Resources["vm"] as HistoriqueViewModel;
-        vm?.ChargerHistorique();
+        (BindingContext as HistoriqueViewModel)?.ChargerHistorique();
     }
 }

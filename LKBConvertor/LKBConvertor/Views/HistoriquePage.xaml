@@ -1,79 +1,119 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:LKBConvertor.ViewModels"
              x:Class="LKBConvertor.Views.HistoriquePage"
              Title="Historique">
 
-    <ContentPage.Resources>
-        <ResourceDictionary>
-            <vm:HistoriqueViewModel x:Key="vm"/>
-        </ResourceDictionary>
-    </ContentPage.Resources>
-
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Effacer tout"
-                     Command="{Binding Source={StaticResource vm},
-                         Path=EffacerToutCommande}"/>
+                     Command="{Binding EffacerToutCommande}"/>
     </ContentPage.ToolbarItems>
 
     <Grid RowDefinitions="*,Auto">
 
-        <!-- Liste vide -->
-        <Label Grid.Row="0"
-               Text="Aucune conversion dans l'historique"
-               FontSize="14"
-               TextColor="{StaticResource GrisFonce}"
-               HorizontalOptions="Center"
-               VerticalOptions="Center"
-               IsVisible="{Binding Source={StaticResource vm},
-                   Path=EstVide}"/>
+        <!-- État vide -->
+        <VerticalStackLayout Grid.Row="0"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center"
+                             Spacing="12"
+                             IsVisible="{Binding EstVide}">
+            <Label Text="📂" FontSize="48" HorizontalOptions="Center"/>
+            <Label Text="Aucune conversion"
+                   Style="{StaticResource LabelTitle}"
+                   HorizontalOptions="Center"/>
+            <Label Text="Vos conversions apparaîtront ici"
+                   Style="{StaticResource LabelCaption}"
+                   HorizontalOptions="Center"/>
+        </VerticalStackLayout>
 
-        <!-- Liste des conversions -->
-        <CollectionView Grid.Row="0"
-                        ItemsSource="{Binding Source={StaticResource vm},
-                            Path=Historique}">
+        <!-- Liste -->
+        <CollectionView x:Name="listeHistorique"
+                        Grid.Row="0"
+                        ItemsSource="{Binding Historique}"
+                        Margin="12,8">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="10"/>
+            </CollectionView.ItemsLayout>
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <SwipeView>
-                        <SwipeView.RightItems>
-                            <SwipeItems>
-                                <SwipeItem Text="Supprimer"
-                                           BackgroundColor="{StaticResource RougeErreur}"
-                                           Command="{Binding Source={StaticResource vm},
-                                               Path=SupprimerCommande}"
-                                           CommandParameter="{Binding .}"/>
-                            </SwipeItems>
-                        </SwipeView.RightItems>
-                        <Grid ColumnDefinitions="*,Auto,Auto"
-                              Padding="16,10" ColumnSpacing="8">
-                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                    <Border BackgroundColor="{StaticResource Surface}"
+                            Stroke="{StaticResource Bordure}"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 14"
+                            Padding="0">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Opacity="0.05" Radius="6" Offset="0,2"/>
+                        </Border.Shadow>
+                        <Grid ColumnDefinitions="Auto,*,Auto"
+                              Padding="14,12" ColumnSpacing="12">
+
+                            <!-- Icône -->
+                            <Border Grid.Column="0"
+                                    BackgroundColor="{StaticResource PrimaireContainer}"
+                                    StrokeShape="RoundRectangle 10"
+                                    StrokeThickness="0"
+                                    WidthRequest="40" HeightRequest="40"
+                                    VerticalOptions="Center">
+                                <Label Text="📄" FontSize="18"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"/>
+                            </Border>
+
+                            <!-- Infos -->
+                            <VerticalStackLayout Grid.Column="1" Spacing="2"
+                                                 VerticalOptions="Center">
                                 <Label Text="{Binding NomFichierSource}"
-                                       FontAttributes="Bold" FontSize="14"/>
+                                       Style="{StaticResource LabelBody}"
+                                       FontAttributes="Bold"
+                                       LineBreakMode="TailTruncation"/>
+                                <Grid ColumnDefinitions="Auto,Auto,Auto"
+                                      ColumnSpacing="8">
+                                    <Label Grid.Column="0"
+                                           Text="{Binding EtiquetteType}"
+                                           Style="{StaticResource LabelCaption}"
+                                           TextColor="{StaticResource Primaire}"
+                                           FontAttributes="Bold"/>
+                                    <Label Grid.Column="1" Text="•"
+                                           Style="{StaticResource LabelCaption}"/>
+                                    <Label Grid.Column="2"
+                                           Text="{Binding TailleAffichage}"
+                                           Style="{StaticResource LabelCaption}"/>
+                                </Grid>
                                 <Label Text="{Binding DateConversion}"
-                                       FontSize="11"
-                                       TextColor="{StaticResource GrisFonce}"/>
+                                       Style="{StaticResource LabelCaption}"
+                                       FontSize="11"/>
                             </VerticalStackLayout>
-                            <Label Grid.Column="1"
-                                   Text="{Binding TailleAffichage}"
-                                   FontSize="11"
-                                   TextColor="{StaticResource GrisFonce}"
-                                   VerticalOptions="Center"/>
-                            <Label Grid.Column="2"
-                                   Text="{Binding EtiquetteType}"
-                                   FontSize="11"
-                                   FontAttributes="Bold"
-                                   TextColor="{StaticResource BleuPrimaire}"
-                                   VerticalOptions="Center"/>
+
+                            <!-- Menu ⋯ -->
+                            <Button Grid.Column="2"
+                                    Text="⋯"
+                                    FontSize="22"
+                                    FontAttributes="Bold"
+                                    Padding="0"
+                                    WidthRequest="40" HeightRequest="40"
+                                    CornerRadius="20"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource SurSurfaceVariant}"
+                                    VerticalOptions="Center"
+                                    Command="{Binding Source={x:Reference listeHistorique},
+                                        Path=BindingContext.MenuCommande}"
+                                    CommandParameter="{Binding .}"/>
                         </Grid>
-                    </SwipeView>
+
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={x:Reference listeHistorique},
+                                    Path=BindingContext.MenuCommande}"
+                                CommandParameter="{Binding .}"/>
+                        </Border.GestureRecognizers>
+                    </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
         <Label Grid.Row="1" Text="Publicité AdMob"
-               BackgroundColor="{StaticResource GrisClair}"
-               TextColor="{StaticResource GrisFonce}"
+               BackgroundColor="{StaticResource SurfaceContainerHigh}"
+               TextColor="{StaticResource SurSurfaceVariant}"
                FontSize="10"
                HorizontalTextAlignment="Center"
                Padding="8"/>

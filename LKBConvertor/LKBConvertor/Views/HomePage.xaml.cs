@@ -4,15 +4,15 @@ namespace LKBConvertor.Views;
 
 public partial class HomePage : ContentPage
 {
-    public HomePage()
+    public HomePage(HomeViewModel vm)
     {
         InitializeComponent();
+        BindingContext = vm;
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        var vm = Resources["vm"] as HomeViewModel;
-        vm?.ChargerConversionsRecentes();
+        (BindingContext as HomeViewModel)?.ChargerConversionsRecentes();
     }
 }

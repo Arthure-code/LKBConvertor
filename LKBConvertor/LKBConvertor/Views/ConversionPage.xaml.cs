@@ -1,19 +1,28 @@
-﻿using LKBConvertor.Models;
+using LKBConvertor.Models;
 using LKBConvertor.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LKBConvertor.Views;
 
 public partial class ConversionPage : ContentPage
 {
-    public ConversionPage(ConversionType type)
+    public ConversionPage(ConversionType type, IServiceProvider sp)
     {
         InitializeComponent();
 
-        var vm = new ConversionViewModel(type);
-        Resources["vm"] = vm;
+        BindingContext = ActivatorUtilities.CreateInstance<ConversionViewModel>(sp, type);
 
-        Title = type == ConversionType.WordVersPdf
-            ? "Word → PDF"
-            : "PDF → RTF";
+        Title = type switch
+        {
+            ConversionType.WordVersPdf       => "Word → PDF",
+            ConversionType.PdfVersRtf        => "PDF → RTF",
+            ConversionType.PdfVersWord       => "PDF → Word",
+            ConversionType.ImageVersPdf      => "Image → PDF",
+            ConversionType.ImageVersWord     => "Image → Word",
+            ConversionType.ExcelVersPdf      => "Excel → PDF",
+            ConversionType.PowerPointVersPdf => "PowerPoint → PDF",
+            ConversionType.PdfVersImage      => "PDF → Image",
+            _ => "Conversion"
+        };
     }
 }

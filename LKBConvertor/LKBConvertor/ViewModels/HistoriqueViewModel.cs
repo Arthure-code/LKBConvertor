@@ -1,23 +1,25 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using LKBConvertor.Data;
 using LKBConvertor.Models;
+using LKBConvertor.Services;
 
 namespace LKBConvertor.ViewModels
 {
     public class HistoriqueViewModel : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        private LKBDatabase _bd = new LKBDatabase();
+        private readonly LKBDatabase _bd;
+        private readonly INavigationService _navigation;
+        private readonly Func<string, Views.PdfViewerPage> _pdfViewerFactory;
 
-        public Command<ConversionHistory> SupprimerCommande { get; set; }
-        public Command EffacerToutCommande { get; set; }
-        public Command<ConversionHistory> PartagerCommande { get; set; }
+        public Command<ConversionHistory> MenuCommande { get; }
+        public Command EffacerToutCommande { get; }
 
-        private List<ConversionHistory> _historique;
+        private List<ConversionHistory> _historique = new();
         public List<ConversionHistory> Historique
         {
-            get { return _historique; }
+            get => _historique;
             set
             {
                 _historique = value;
@@ -26,19 +28,56 @@ namespace LKBConvertor.ViewModels
             }
         }
 
-        public bool EstVide =>
-            _historique == null || _historique.Count == 0;
+        public bool EstVide => _historique == null || _historique.Count == 0;
 
-        public HistoriqueViewModel()
+        public HistoriqueViewModel(
+            LKBDatabase bd,
+            INavigationService navigation,
+            Func<string, Views.PdfViewerPage> pdfViewerFactory)
         {
-            SupprimerCommande = new Command<ConversionHistory>(Supprimer);
-            EffacerToutCommande = new Command(EffacerTout);
-            PartagerCommande = new Command<ConversionHistory>(Partager);
+            _bd = bd;
+            _navigation = navigation;
+            _pdfViewerFactory = pdfViewerFactory;
+
+            MenuCommande = new Command<ConversionHistory>(
+                async item => await AfficherMenuAsync(item));
+            EffacerToutCommande = new Command(async () => await EffacerToutAsync());
         }
 
-        public void ChargerHistorique()
+        public void ChargerHistorique() => Historique = _bd.ObtenirHistorique();
+
+        private async Task AfficherMenuAsync(ConversionHistory item)
         {
-            Historique = _bd.ObtenirHistorique();
+            if (item == null) return;
+
+            var options = new List<string> { "Partager" };
+            if (File.Exists(item.CheminSortie))
+                options.Insert(0, "Ouvrir");
+
+            var choix = await _navigation.AfficherOptions(
+                item.NomFichierSortie,
+                "Annuler",
+                "Supprimer",
+                options.ToArray());
+
+            switch (choix)
+            {
+                case "Ouvrir":    await OuvrirAsync(item); break;
+                case "Partager":  await PartagerAsync(item); break;
+                case "Supprimer": Supprimer(item); break;
+            }
+        }
+
+        private async Task EffacerToutAsync()
+        {
+            var confirmer = await _navigation.AfficherAlerte(
+                "Effacer tout",
+                "Supprimer toutes les conversions de l'historique ?",
+                "Effacer", "Annuler");
+            if (!confirmer) return;
+
+            _bd.EffacerTout();
+            Historique = new List<ConversionHistory>();
         }
 
         private void Supprimer(ConversionHistory item)
@@ -48,26 +87,27 @@ namespace LKBConvertor.ViewModels
             ChargerHistorique();
         }
 
-        private void EffacerTout()
-        {
-            _bd.EffacerTout();
-            Historique = new List<ConversionHistory>();
-        }
-
-        private async void Partager(ConversionHistory item)
+        private async Task PartagerAsync(ConversionHistory item)
         {
             if (item == null) return;
-            await Share.Default.RequestAsync(new ShareFileRequest
+            try
             {
-                Title = item.NomFichierSortie,
-                File = new ShareFile(item.CheminSortie)
-            });
+                await ShareHelper.PartagerFichierAsync(item.CheminSortie, item.NomFichierSortie);
+            }
+            catch { /* partage annulé */ }
         }
 
-        private void OnPropertyChanged(string nomPropriete)
+        private async Task OuvrirAsync(ConversionHistory item)
         {
-            PropertyChanged?.Invoke(this,
-                new PropertyChangedEventArgs(nomPropriete));
+            if (item == null || !File.Exists(item.CheminSortie)) return;
+            try
+            {
+                await _navigation.PushAsync(_pdfViewerFactory(item.CheminSortie));
+            }
+            catch { /* navigation échouée */ }
         }
+
+        private void OnPropertyChanged(string nomPropriete) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nomPropriete));
     }
 }

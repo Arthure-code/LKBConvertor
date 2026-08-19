@@ -1,28 +1,22 @@
-﻿using LKBConvertor.Models;
-using SQLite;
+using LKBConvertor.Views;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LKBConvertor
 {
     public partial class App : Application
     {
-        public static string CheminBD;
+        private readonly IServiceProvider _sp;
 
-        public App()
+        public App(IServiceProvider sp)
         {
             InitializeComponent();
+            _sp = sp;
+        }
 
-            var nomBD = "lkbconvertor_db.sqlite";
-            var repertoire = FileSystem.AppDataDirectory;
-            var cheminAcces = Path.Combine(repertoire, nomBD);
-
-            CheminBD = cheminAcces;
-
-            using (var conn = new SQLiteConnection(cheminAcces))
-            {
-                conn.CreateTable<ConversionHistory>();
-            }
-
-            MainPage = new NavigationPage(new Views.HomePage());
+        protected override Window CreateWindow(IActivationState? activationState)
+        {
+            var home = _sp.GetRequiredService<HomePage>();
+            return new Window(new NavigationPage(home));
         }
     }
 }
