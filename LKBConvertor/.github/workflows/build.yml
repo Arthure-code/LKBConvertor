@@ -62,7 +62,7 @@ jobs:
         run: |
           dotnet sonarscanner begin \
             /k:"Arthure-code_LKBConvertor" \
-            /o:"arthure-code" \
+            /o:"arthuredevsecops" \
             /d:sonar.token="$SONAR_TOKEN" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.exclusions="**/obj/**,**/bin/**,**/Platforms/**/Resources/**,**/*.g.cs,**/Resources/Fonts/**,**/Resources/Images/**" \
