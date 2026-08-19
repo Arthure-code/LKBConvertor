@@ -22,8 +22,6 @@
 
 Application Android de conversion de documents multi-format, développée en **.NET 9 MAUI**.
 
-Publication Google Play prévue (compte en cours de validation).
-
 ---
 
 ## Fonctionnalités
