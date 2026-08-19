@@ -10,9 +10,16 @@ namespace LKBConvertor.Services
 
     public class NavigationService : INavigationService
     {
-        private static Page PageActive =>
-            Application.Current?.Windows?.FirstOrDefault()?.Page
-            ?? throw new InvalidOperationException("Aucune page active.");
+        private static Page PageActive
+        {
+            get
+            {
+                var windows = Application.Current?.Windows;
+                if (windows == null || windows.Count == 0 || windows[0].Page == null)
+                    throw new InvalidOperationException("Aucune page active.");
+                return windows[0].Page!;
+            }
+        }
 
         public Task PushAsync(Page page) => PageActive.Navigation.PushAsync(page);
 
